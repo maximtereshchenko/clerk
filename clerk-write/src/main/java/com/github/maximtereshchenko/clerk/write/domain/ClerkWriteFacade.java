@@ -25,7 +25,11 @@ public final class ClerkWriteFacade implements ClerkWriteModule {
 
     @Override
     public void createTemplate(UUID id, UUID fileId, String name)
-            throws CouldNotExtendTimeToLive, CouldNotFindPlaceholders, TemplateIsEmpty, NameIsRequired {
+            throws CouldNotExtendTimeToLive,
+            CouldNotFindPlaceholders,
+            TemplateIsEmpty,
+            NameIsRequired,
+            TemplateWithIdExists {
         templateService.createTemplate(id, fileId, name);
     }
 

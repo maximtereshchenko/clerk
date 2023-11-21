@@ -8,4 +8,6 @@ public interface Templates {
     void persist(PersistentTemplate persistentTemplate);
 
     Optional<PersistentTemplate> findById(UUID id);
+
+    boolean exists(UUID id);
 }

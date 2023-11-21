@@ -1,10 +1,7 @@
 package com.github.maximtereshchenko.clerk.write.domain;
 
 import com.github.maximtereshchenko.clerk.write.api.CreateTemplateUseCase;
-import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotExtendTimeToLive;
-import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotFindPlaceholders;
-import com.github.maximtereshchenko.clerk.write.api.exception.NameIsRequired;
-import com.github.maximtereshchenko.clerk.write.api.exception.TemplateIsEmpty;
+import com.github.maximtereshchenko.clerk.write.api.exception.*;
 import com.github.maximtereshchenko.clerk.write.api.port.*;
 import com.github.maximtereshchenko.clerk.write.api.port.event.TemplateCreated;
 import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotFindFile;
@@ -34,9 +31,16 @@ final class TemplateService implements CreateTemplateUseCase {
 
     @Override
     public void createTemplate(UUID id, UUID fileId, String name)
-            throws CouldNotExtendTimeToLive, CouldNotFindPlaceholders, TemplateIsEmpty, NameIsRequired {
+            throws CouldNotExtendTimeToLive,
+            CouldNotFindPlaceholders,
+            TemplateIsEmpty,
+            NameIsRequired,
+            TemplateWithIdExists {
         if (name.isBlank()) {
             throw new NameIsRequired(id);
+        }
+        if (templates.exists(id)) {
+            throw new TemplateWithIdExists(id);
         }
         setTimeToLive(id, fileId);
         var placeholders = placeholders(id, fileId);

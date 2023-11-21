@@ -1,10 +1,7 @@
 package com.github.maximtereshchenko.clerk.write.domain;
 
 import com.github.maximtereshchenko.clerk.write.api.ClerkWriteModule;
-import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotExtendTimeToLive;
-import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotFindPlaceholders;
-import com.github.maximtereshchenko.clerk.write.api.exception.NameIsRequired;
-import com.github.maximtereshchenko.clerk.write.api.exception.TemplateIsEmpty;
+import com.github.maximtereshchenko.clerk.write.api.exception.*;
 import com.github.maximtereshchenko.clerk.write.api.port.PersistentTemplate;
 import com.github.maximtereshchenko.clerk.write.api.port.Templates;
 import com.github.maximtereshchenko.clerk.write.api.port.event.TemplateCreated;
@@ -148,6 +145,22 @@ final class CreateTemplateUseCaseTests {
     ) {
         assertThatThrownBy(() -> module.createTemplate(templateId, fileId, ""))
                 .isInstanceOf(NameIsRequired.class)
+                .hasMessage(templateId.toString());
+    }
+
+    @Test
+    void givenTemplateExists_whenCreateTemplate_thenTemplateWithIdExistsThrown(
+            FilesInMemory files,
+            UUID fileId,
+            Path template,
+            UUID templateId,
+            ClerkWriteModule module
+    ) throws Exception {
+        files.save(fileId, template, Instant.MIN);
+        module.createTemplate(templateId, fileId, "name");
+
+        assertThatThrownBy(() -> module.createTemplate(templateId, fileId, "different name"))
+                .isInstanceOf(TemplateWithIdExists.class)
                 .hasMessage(templateId.toString());
     }
 }

@@ -21,4 +21,9 @@ public final class TemplatesInMemory implements Templates {
     public synchronized Optional<PersistentTemplate> findById(UUID id) {
         return Optional.ofNullable(map.get(id));
     }
+
+    @Override
+    public synchronized boolean exists(UUID id) {
+        return map.containsKey(id);
+    }
 }
