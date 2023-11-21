@@ -18,4 +18,9 @@ public final class TemplatesInMemory implements Templates {
     public synchronized Collection<TemplatePresentation> findAll() {
         return List.copyOf(map.values());
     }
+
+    @Override
+    public synchronized Optional<TemplatePresentation> findById(UUID id) {
+        return Optional.ofNullable(map.get(id));
+    }
 }

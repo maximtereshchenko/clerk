@@ -18,11 +18,22 @@ final class TemplateService implements UpdateTemplatesUseCase, ViewTemplatesUseC
 
     @Override
     public void onTemplateCreated(TemplateCreated templateCreated) {
-        templates.persist(new TemplatePresentation(templateCreated.id(), templateCreated.name()));
+        if (isOld(templateCreated)) {
+            return;
+        }
+        templates.persist(
+                new TemplatePresentation(templateCreated.id(), templateCreated.name(), templateCreated.timestamp())
+        );
     }
 
     @Override
     public Collection<TemplatePresentation> templates() {
         return templates.findAll();
+    }
+
+    private boolean isOld(TemplateCreated templateCreated) {
+        return templates.findById(templateCreated.id())
+                .map(templatePresentation -> !templateCreated.timestamp().isAfter(templatePresentation.timestamp()))
+                .orElse(Boolean.FALSE);
     }
 }
