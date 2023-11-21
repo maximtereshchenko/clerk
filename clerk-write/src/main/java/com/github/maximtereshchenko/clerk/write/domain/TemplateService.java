@@ -10,6 +10,7 @@ import com.github.maximtereshchenko.clerk.write.api.port.TemplateEngine;
 import com.github.maximtereshchenko.clerk.write.api.port.event.TemplateCreated;
 import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotFindFile;
 import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotReadInputStream;
+import java.io.IOException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Set;
@@ -37,10 +38,10 @@ final class TemplateService implements CreateTemplateUseCase {
         if (placeholders.isEmpty()) {
             throw new TemplateIsEmpty(id, fileId);
         }
-        saveEvent(id, name, placeholders);
+        persistEvent(id, name, placeholders);
     }
 
-    private void saveEvent(UUID id, String name, Set<String> placeholders) {
+    private void persistEvent(UUID id, String name, Set<String> placeholders) {
         eventStore.persist(
             new TemplateCreated(
                 id,
@@ -53,11 +54,9 @@ final class TemplateService implements CreateTemplateUseCase {
     }
 
     private Set<String> placeholders(UUID id, UUID fileId) throws CouldNotFindPlaceholders {
-        try {
-
-            return templateEngine.placeholders(files.inputStream(fileId));
-
-        } catch (CouldNotReadInputStream e) {
+        try (var inputStream = files.inputStream(fileId)) {
+            return templateEngine.placeholders(inputStream);
+        } catch (CouldNotReadInputStream | IOException e) {
             throw new CouldNotFindPlaceholders(id, fileId, e);
         }
     }

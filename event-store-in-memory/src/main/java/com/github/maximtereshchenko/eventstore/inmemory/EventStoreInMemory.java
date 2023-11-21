@@ -17,7 +17,7 @@ public final class EventStoreInMemory implements EventStore {
         events.computeIfAbsent(event.aggregateId(), key -> new ArrayList<>()).add(event);
     }
 
-    public List<Event> events(UUID aggregateId) {
+    public synchronized List<Event> events(UUID aggregateId) {
         return List.copyOf(events.getOrDefault(aggregateId, List.of()));
     }
 }

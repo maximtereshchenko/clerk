@@ -2,9 +2,9 @@ package com.github.maximtereshchenko.clerk.write.api.exception;
 
 import java.util.UUID;
 
-public final class TemplateIsEmpty extends Exception {
+public final class TemplateIsEmpty extends ClerkWriteException {
 
     public TemplateIsEmpty(UUID templateId, UUID fileId) {
-        super("Template ID %s, file ID %s".formatted(templateId, fileId));
+        super(templateId, fileId, null);
     }
 }

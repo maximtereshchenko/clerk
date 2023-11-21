@@ -8,6 +8,7 @@ import com.github.maximtereshchenko.clerk.write.api.port.EventStore;
 import com.github.maximtereshchenko.clerk.write.api.port.Files;
 import com.github.maximtereshchenko.clerk.write.api.port.TemplateEngine;
 import java.time.Clock;
+import java.util.Objects;
 import java.util.UUID;
 
 public final class ClerkWriteFacade implements ClerkWriteModule {
@@ -22,5 +23,42 @@ public final class ClerkWriteFacade implements ClerkWriteModule {
     public void createTemplate(UUID id, UUID fileId, String name)
         throws CouldNotExtendTimeToLive, CouldNotFindPlaceholders, TemplateIsEmpty {
         templateService.createTemplate(id, fileId, name);
+    }
+
+    public static final class Builder {
+
+        private Files files;
+        private TemplateEngine templateEngine;
+        private EventStore eventStore;
+        private Clock clock;
+
+        public Builder withFiles(Files files) {
+            this.files = files;
+            return this;
+        }
+
+        public Builder withTemplateEngine(TemplateEngine templateEngine) {
+            this.templateEngine = templateEngine;
+            return this;
+        }
+
+        public Builder withEventStore(EventStore eventStore) {
+            this.eventStore = eventStore;
+            return this;
+        }
+
+        public Builder withClock(Clock clock) {
+            this.clock = clock;
+            return this;
+        }
+
+        public ClerkWriteModule build() {
+            return new ClerkWriteFacade(
+                Objects.requireNonNull(files),
+                Objects.requireNonNull(templateEngine),
+                Objects.requireNonNull(eventStore),
+                Objects.requireNonNull(clock)
+            );
+        }
     }
 }
