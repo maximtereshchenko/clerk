@@ -4,7 +4,7 @@ import java.util.UUID;
 
 public final class CouldNotFindPlaceholders extends Exception {
 
-    public CouldNotFindPlaceholders(UUID id, Throwable cause) {
-        super(id.toString(), cause);
+    public CouldNotFindPlaceholders(UUID templateId, UUID fileId, Throwable cause) {
+        super("Template ID %s, file ID %s".formatted(templateId, fileId), cause);
     }
 }

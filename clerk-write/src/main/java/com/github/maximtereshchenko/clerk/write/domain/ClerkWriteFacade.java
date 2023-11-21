@@ -3,6 +3,7 @@ package com.github.maximtereshchenko.clerk.write.domain;
 import com.github.maximtereshchenko.clerk.write.api.ClerkWriteModule;
 import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotExtendTimeToLive;
 import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotFindPlaceholders;
+import com.github.maximtereshchenko.clerk.write.api.exception.TemplateIsEmpty;
 import com.github.maximtereshchenko.clerk.write.api.port.EventStore;
 import com.github.maximtereshchenko.clerk.write.api.port.Files;
 import com.github.maximtereshchenko.clerk.write.api.port.TemplateEngine;
@@ -19,7 +20,7 @@ public final class ClerkWriteFacade implements ClerkWriteModule {
 
     @Override
     public void createTemplate(UUID id, UUID fileId, String name)
-        throws CouldNotExtendTimeToLive, CouldNotFindPlaceholders {
+        throws CouldNotExtendTimeToLive, CouldNotFindPlaceholders, TemplateIsEmpty {
         templateService.createTemplate(id, fileId, name);
     }
 }

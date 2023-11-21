@@ -3,6 +3,7 @@ package com.github.maximtereshchenko.clerk.write.domain;
 import com.github.maximtereshchenko.clerk.write.api.CreateTemplateUseCase;
 import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotExtendTimeToLive;
 import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotFindPlaceholders;
+import com.github.maximtereshchenko.clerk.write.api.exception.TemplateIsEmpty;
 import com.github.maximtereshchenko.clerk.write.api.port.EventStore;
 import com.github.maximtereshchenko.clerk.write.api.port.Files;
 import com.github.maximtereshchenko.clerk.write.api.port.TemplateEngine;
@@ -11,6 +12,7 @@ import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotFindF
 import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotReadInputStream;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Set;
 import java.util.UUID;
 
 final class TemplateService implements CreateTemplateUseCase {
@@ -29,20 +31,34 @@ final class TemplateService implements CreateTemplateUseCase {
 
     @Override
     public void createTemplate(UUID id, UUID fileId, String name)
-        throws CouldNotExtendTimeToLive, CouldNotFindPlaceholders {
+        throws CouldNotExtendTimeToLive, CouldNotFindPlaceholders, TemplateIsEmpty {
         setTimeToLive(id, fileId);
+        var placeholders = placeholders(id, fileId);
+        if (placeholders.isEmpty()) {
+            throw new TemplateIsEmpty(id, fileId);
+        }
+        saveEvent(id, name, placeholders);
+    }
+
+    private void saveEvent(UUID id, String name, Set<String> placeholders) {
+        eventStore.persist(
+            new TemplateCreated(
+                id,
+                name,
+                placeholders,
+                1,
+                clock.instant()
+            )
+        );
+    }
+
+    private Set<String> placeholders(UUID id, UUID fileId) throws CouldNotFindPlaceholders {
         try {
-            eventStore.persist(
-                new TemplateCreated(
-                    id,
-                    name,
-                    templateEngine.placeholders(files.inputStream(fileId)),
-                    1,
-                    clock.instant()
-                )
-            );
+
+            return templateEngine.placeholders(files.inputStream(fileId));
+
         } catch (CouldNotReadInputStream e) {
-            throw new CouldNotFindPlaceholders(fileId, e);
+            throw new CouldNotFindPlaceholders(id, fileId, e);
         }
     }
 
@@ -50,7 +66,7 @@ final class TemplateService implements CreateTemplateUseCase {
         try {
             files.setTimeToLive(fileId, Instant.MAX);
         } catch (CouldNotFindFile e) {
-            throw new CouldNotExtendTimeToLive(id, e);
+            throw new CouldNotExtendTimeToLive(id, fileId, e);
         }
     }
 }

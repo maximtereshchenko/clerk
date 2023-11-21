@@ -4,7 +4,7 @@ import java.util.UUID;
 
 public final class CouldNotExtendTimeToLive extends Exception {
 
-    public CouldNotExtendTimeToLive(UUID id, Throwable cause) {
-        super(id.toString(), cause);
+    public CouldNotExtendTimeToLive(UUID templateId, UUID fileId, Throwable cause) {
+        super("Template ID %s, file ID %s".formatted(templateId, fileId), cause);
     }
 }

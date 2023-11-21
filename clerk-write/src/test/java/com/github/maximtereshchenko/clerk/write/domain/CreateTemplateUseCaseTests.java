@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.github.maximtereshchenko.clerk.write.api.ClerkWriteModule;
 import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotExtendTimeToLive;
 import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotFindPlaceholders;
+import com.github.maximtereshchenko.clerk.write.api.exception.TemplateIsEmpty;
 import com.github.maximtereshchenko.clerk.write.api.port.event.TemplateCreated;
 import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotFindFile;
 import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotReadInputStream;
@@ -48,7 +49,8 @@ final class CreateTemplateUseCaseTests {
     void givenFileDoNotExist_whenCreateTemplate_thenCouldNotExtendTimeToLiveThrown(UUID fileId, UUID templateId) {
         assertThatThrownBy(() -> testModule.createTemplate(templateId, fileId, "name"))
             .isInstanceOf(CouldNotExtendTimeToLive.class)
-            .hasMessage(templateId.toString())
+            .hasMessageContaining(templateId.toString())
+            .hasMessageContaining(fileId.toString())
             .hasCauseInstanceOf(CouldNotFindFile.class);
     }
 
@@ -91,7 +93,22 @@ final class CreateTemplateUseCaseTests {
 
         assertThatThrownBy(() -> testModule.createTemplate(templateId, fileId, "name"))
             .isInstanceOf(CouldNotFindPlaceholders.class)
-            .hasMessage(fileId.toString())
+            .hasMessageContaining(templateId.toString())
+            .hasMessageContaining(fileId.toString())
             .hasCauseInstanceOf(CouldNotReadInputStream.class);
+    }
+
+    @Test
+    void givenTemplateIsEmpty_whenCreateTemplate_thenTemplateIsEmptyThrown(
+        UUID fileId,
+        Path emptyTemplate,
+        UUID templateId
+    ) {
+        files.save(fileId, emptyTemplate, Instant.MIN);
+
+        assertThatThrownBy(() -> testModule.createTemplate(templateId, fileId, "name"))
+            .isInstanceOf(TemplateIsEmpty.class)
+            .hasMessageContaining(templateId.toString())
+            .hasMessageContaining(fileId.toString());
     }
 }
