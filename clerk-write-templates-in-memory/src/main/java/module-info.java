@@ -1,4 +1,4 @@
-module com.github.maximtereshchenko.clerk.write.eventstore.inmemory {
+module com.github.maximtereshchenko.clerk.write.templates.inmemory {
     requires com.github.maximtereshchenko.clerk.write.api;
-    exports com.github.maximtereshchenko.clerk.write.eventstore.inmemory;
+    exports com.github.maximtereshchenko.clerk.write.templates.inmemory;
 }

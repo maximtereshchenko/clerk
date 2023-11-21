@@ -1,5 +1,6 @@
 package com.github.maximtereshchenko.clerk.write.domain;
 
+import com.github.maximtereshchenko.clerk.event.DocumentCreated;
 import com.github.maximtereshchenko.clerk.write.api.CreateDocumentFromTemplateUseCase;
 import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotFindTemplate;
 import com.github.maximtereshchenko.clerk.write.api.exception.UnexpectedException;
@@ -8,7 +9,6 @@ import com.github.maximtereshchenko.clerk.write.api.port.EventBus;
 import com.github.maximtereshchenko.clerk.write.api.port.Files;
 import com.github.maximtereshchenko.clerk.write.api.port.TemplateEngine;
 import com.github.maximtereshchenko.clerk.write.api.port.Templates;
-import com.github.maximtereshchenko.clerk.write.api.port.event.DocumentCreated;
 import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotFindFile;
 
 import java.io.InputStream;

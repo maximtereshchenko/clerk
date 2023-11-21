@@ -4,19 +4,11 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":clerk-write-api"))
-    testImplementation(project(":clerk-write-files-in-memory"))
-    testImplementation(project(":clerk-write-templates-in-memory"))
-    testImplementation(project(":clerk-write-template-engine-freemarker"))
+    implementation(project(":clerk-read-api"))
+    testImplementation(project(":clerk-read-templates-in-memory"))
     testImplementation(testFixtures(project(":test-common")))
     testImplementation(libs.junit)
     testImplementation(libs.assertj)
-}
-
-tasks {
-    compileTestJava {
-        options.compilerArgs.add("-parameters")
-    }
 }
 
 testing {
@@ -26,3 +18,4 @@ testing {
         }
     }
 }
+

@@ -3,5 +3,5 @@ plugins {
 }
 
 dependencies {
-    api(project(":clerk-events"))
+    implementation(project(":clerk-read-api"))
 }

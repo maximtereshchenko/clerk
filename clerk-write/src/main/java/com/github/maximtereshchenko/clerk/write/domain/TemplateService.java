@@ -1,9 +1,9 @@
 package com.github.maximtereshchenko.clerk.write.domain;
 
+import com.github.maximtereshchenko.clerk.event.TemplateCreated;
 import com.github.maximtereshchenko.clerk.write.api.CreateTemplateUseCase;
 import com.github.maximtereshchenko.clerk.write.api.exception.*;
 import com.github.maximtereshchenko.clerk.write.api.port.*;
-import com.github.maximtereshchenko.clerk.write.api.port.event.TemplateCreated;
 import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotFindFile;
 
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package com.github.maximtereshchenko.clerk.write.eventstore.inmemory;
+package com.github.maximtereshchenko.clerk.write.templates.inmemory;
 
 import com.github.maximtereshchenko.clerk.write.api.port.PersistentTemplate;
 import com.github.maximtereshchenko.clerk.write.api.port.Templates;

@@ -4,6 +4,11 @@ include("clerk-write")
 include("clerk-write-files-in-memory")
 include("clerk-write-templates-in-memory")
 include("clerk-write-template-engine-freemarker")
+include("clerk-read-api")
+include("clerk-events")
+include("clerk-read")
+include("test-common")
+include("clerk-read-templates-in-memory")
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {

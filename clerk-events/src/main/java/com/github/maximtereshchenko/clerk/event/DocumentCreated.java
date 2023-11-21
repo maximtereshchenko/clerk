@@ -1,4 +1,4 @@
-package com.github.maximtereshchenko.clerk.write.api.port.event;
+package com.github.maximtereshchenko.clerk.event;
 
 import java.time.Instant;
 import java.util.UUID;

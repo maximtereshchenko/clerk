@@ -1,6 +1,6 @@
 package com.github.maximtereshchenko.clerk.write.api.port;
 
-import com.github.maximtereshchenko.clerk.write.api.port.event.Event;
+import com.github.maximtereshchenko.clerk.event.Event;
 
 public interface EventBus {
 

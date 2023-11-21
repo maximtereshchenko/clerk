@@ -1,10 +1,11 @@
 package com.github.maximtereshchenko.clerk.write.domain;
 
+import com.github.maximtereshchenko.clerk.event.DocumentCreated;
 import com.github.maximtereshchenko.clerk.write.api.ClerkWriteModule;
 import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotFindTemplate;
 import com.github.maximtereshchenko.clerk.write.api.exception.ValuesAreRequired;
 import com.github.maximtereshchenko.clerk.write.api.port.Files;
-import com.github.maximtereshchenko.clerk.write.api.port.event.DocumentCreated;
+import com.github.maximtereshchenko.test.PredictableUUIDExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
