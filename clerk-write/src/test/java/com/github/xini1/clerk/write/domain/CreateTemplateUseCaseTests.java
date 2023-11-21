@@ -1,8 +1,11 @@
 package com.github.xini1.clerk.write.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.github.xini1.clerk.write.api.ClerkWriteModule;
+import com.github.xini1.clerk.write.api.exception.CouldNotExtendTimeToLive;
+import com.github.xini1.clerk.write.api.port.CouldNotFindFile;
 import com.github.xini1.files.inmemory.FilesInMemory;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -17,11 +20,20 @@ final class CreateTemplateUseCaseTests {
     private final ClerkWriteModule module = new ClerkWriteFacade(files);
 
     @Test
-    void givenFileExists_whenCreateTemplate_thenFileTimeToLiveExtended(UUID fileId, Path template, UUID templateId) {
+    void givenFileExists_whenCreateTemplate_thenFileTimeToLiveExtended(UUID fileId, Path template, UUID templateId)
+        throws Exception {
         files.save(fileId, template, Instant.MIN);
 
         module.createTemplate(templateId, fileId, "name");
 
         assertThat(files.timeToLive(fileId)).isEqualTo(Instant.MAX);
+    }
+
+    @Test
+    void givenFileDoNotExist_whenCreateTemplate_thenCouldNotExtendTimeToLiveThrown(UUID fileId, UUID templateId) {
+        assertThatThrownBy(() -> module.createTemplate(templateId, fileId, "name"))
+            .isInstanceOf(CouldNotExtendTimeToLive.class)
+            .hasMessage(templateId.toString())
+            .hasCauseInstanceOf(CouldNotFindFile.class);
     }
 }

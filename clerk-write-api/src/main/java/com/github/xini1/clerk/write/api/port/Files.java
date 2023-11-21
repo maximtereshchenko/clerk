@@ -5,5 +5,5 @@ import java.util.UUID;
 
 public interface Files {
 
-    void setTimeToLive(UUID id, Instant timeToLive);
+    void setTimeToLive(UUID id, Instant timeToLive) throws CouldNotFindFile;
 }
