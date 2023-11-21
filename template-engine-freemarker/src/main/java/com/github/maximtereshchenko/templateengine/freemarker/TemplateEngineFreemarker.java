@@ -1,6 +1,7 @@
 package com.github.maximtereshchenko.templateengine.freemarker;
 
 import com.github.maximtereshchenko.clerk.write.api.port.TemplateEngine;
+import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotReadInputStream;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -29,14 +30,14 @@ public final class TemplateEngineFreemarker implements TemplateEngine {
     }
 
     @Override
-    public Set<String> placeholders(InputStream inputStream) {
+    public Set<String> placeholders(InputStream inputStream) throws CouldNotReadInputStream {
         try {
             var template = new Template("", new InputStreamReader(inputStream), configuration);
             var placeholders = new Placeholders();
             template.process(placeholders, Writer.nullWriter());
             return placeholders.collected();
         } catch (IOException | TemplateException e) {
-            throw new RuntimeException(e);
+            throw new CouldNotReadInputStream(e);
         }
     }
 }

@@ -34,12 +34,19 @@ final class ClerkWriteModuleExtension implements ParameterResolver {
 
     private record Context(Map<Class<?>, Object> parameters) {
 
-        private Context(FilesInMemory files, EventStoreInMemory eventStore, Clock clock, Builder builder) {
+        private Context(
+            FilesInMemory files,
+            EventStoreInMemory eventStore,
+            Clock clock,
+            EventBusInMemory eventBus,
+            Builder builder
+        ) {
             this(
                 Map.of(
                     FilesInMemory.class, files,
                     EventStoreInMemory.class, eventStore,
                     Clock.class, clock,
+                    EventBusInMemory.class, eventBus,
                     Builder.class, builder,
                     ClerkWriteModule.class, builder.build()
                 )
@@ -50,12 +57,14 @@ final class ClerkWriteModuleExtension implements ParameterResolver {
             var files = new FilesInMemory();
             var eventStore = new EventStoreInMemory();
             var clock = Clock.fixed(Instant.parse("2020-01-01T00:00:00Z"), ZoneOffset.UTC);
+            var eventBus = new EventBusInMemory();
             var builder = new Builder()
                 .withFiles(files)
                 .withEventStore(eventStore)
                 .withClock(clock)
-                .withTemplateEngine(TemplateEngineFreemarker.createDefault());
-            return new Context(files, eventStore, clock, builder);
+                .withTemplateEngine(TemplateEngineFreemarker.createDefault())
+                .withEventBus(eventBus);
+            return new Context(files, eventStore, clock, eventBus, builder);
         }
 
         boolean supports(Class<?> type) {

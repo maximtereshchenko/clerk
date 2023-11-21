@@ -4,6 +4,7 @@ import com.github.maximtereshchenko.clerk.write.api.ClerkWriteModule;
 import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotExtendTimeToLive;
 import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotFindPlaceholders;
 import com.github.maximtereshchenko.clerk.write.api.exception.TemplateIsEmpty;
+import com.github.maximtereshchenko.clerk.write.api.port.EventBus;
 import com.github.maximtereshchenko.clerk.write.api.port.EventStore;
 import com.github.maximtereshchenko.clerk.write.api.port.Files;
 import com.github.maximtereshchenko.clerk.write.api.port.TemplateEngine;
@@ -15,8 +16,14 @@ public final class ClerkWriteFacade implements ClerkWriteModule {
 
     private final TemplateService templateService;
 
-    public ClerkWriteFacade(Files files, TemplateEngine templateEngine, EventStore eventStore, Clock clock) {
-        templateService = new TemplateService(files, templateEngine, eventStore, clock);
+    public ClerkWriteFacade(
+        Files files,
+        TemplateEngine templateEngine,
+        EventStore eventStore,
+        EventBus eventBus,
+        Clock clock
+    ) {
+        templateService = new TemplateService(files, templateEngine, eventStore, eventBus, clock);
     }
 
     @Override
@@ -30,6 +37,7 @@ public final class ClerkWriteFacade implements ClerkWriteModule {
         private Files files;
         private TemplateEngine templateEngine;
         private EventStore eventStore;
+        private EventBus eventBus;
         private Clock clock;
 
         public Builder withFiles(Files files) {
@@ -47,6 +55,11 @@ public final class ClerkWriteFacade implements ClerkWriteModule {
             return this;
         }
 
+        public Builder withEventBus(EventBus eventBus) {
+            this.eventBus = eventBus;
+            return this;
+        }
+
         public Builder withClock(Clock clock) {
             this.clock = clock;
             return this;
@@ -57,6 +70,7 @@ public final class ClerkWriteFacade implements ClerkWriteModule {
                 Objects.requireNonNull(files),
                 Objects.requireNonNull(templateEngine),
                 Objects.requireNonNull(eventStore),
+                Objects.requireNonNull(eventBus),
                 Objects.requireNonNull(clock)
             );
         }

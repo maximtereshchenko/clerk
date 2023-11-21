@@ -8,6 +8,7 @@ import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotExtendTime
 import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotFindPlaceholders;
 import com.github.maximtereshchenko.clerk.write.api.exception.TemplateIsEmpty;
 import com.github.maximtereshchenko.clerk.write.api.port.event.TemplateCreated;
+import com.github.maximtereshchenko.clerk.write.api.port.event.integration.TemplateCreatedIntegrationEvent;
 import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotFindFile;
 import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotReadInputStream;
 import com.github.maximtereshchenko.clerk.write.domain.ClerkWriteFacade.Builder;
@@ -112,5 +113,31 @@ final class CreateTemplateUseCaseTests {
             .isInstanceOf(TemplateIsEmpty.class)
             .hasMessageContaining(templateId.toString())
             .hasMessageContaining(fileId.toString());
+    }
+
+    @Test
+    void givenTemplateIsCreated_whenCreateTemplate_thenTemplateCreatedIntegrationEventPublished(
+        FilesInMemory files,
+        UUID fileId,
+        Path template,
+        UUID templateId,
+        EventBusInMemory eventBus,
+        Clock clock,
+        ClerkWriteModule module
+    ) throws Exception {
+        files.save(fileId, template, Instant.MIN);
+
+        module.createTemplate(templateId, fileId, "name");
+
+        assertThat(eventBus.published())
+            .containsExactly(
+                new TemplateCreatedIntegrationEvent(
+                    templateId,
+                    "name",
+                    Set.of("placeholder"),
+                    1,
+                    clock.instant()
+                )
+            );
     }
 }
