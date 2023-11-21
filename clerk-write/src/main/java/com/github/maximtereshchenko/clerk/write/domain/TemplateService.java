@@ -12,6 +12,7 @@ import com.github.maximtereshchenko.clerk.write.api.port.event.TemplateCreated;
 import com.github.maximtereshchenko.clerk.write.api.port.event.integration.TemplateCreatedIntegrationEvent;
 import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotFindFile;
 import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotReadInputStream;
+
 import java.io.IOException;
 import java.time.Clock;
 import java.time.Instant;
@@ -36,7 +37,7 @@ final class TemplateService implements CreateTemplateUseCase {
 
     @Override
     public void createTemplate(UUID id, UUID fileId, String name)
-        throws CouldNotExtendTimeToLive, CouldNotFindPlaceholders, TemplateIsEmpty {
+            throws CouldNotExtendTimeToLive, CouldNotFindPlaceholders, TemplateIsEmpty {
         setTimeToLive(id, fileId);
         var placeholders = placeholders(id, fileId);
         if (placeholders.isEmpty()) {
@@ -49,25 +50,25 @@ final class TemplateService implements CreateTemplateUseCase {
 
     private void publishIntegrationEvent(UUID id, String name, Set<String> placeholders, Instant instant) {
         eventBus.publish(
-            new TemplateCreatedIntegrationEvent(
-                id,
-                name,
-                placeholders,
-                1,
-                instant
-            )
+                new TemplateCreatedIntegrationEvent(
+                        id,
+                        name,
+                        placeholders,
+                        1,
+                        instant
+                )
         );
     }
 
     private void persistEvent(UUID id, String name, Set<String> placeholders, Instant instant) {
         eventStore.persist(
-            new TemplateCreated(
-                id,
-                name,
-                placeholders,
-                1,
-                instant
-            )
+                new TemplateCreated(
+                        id,
+                        name,
+                        placeholders,
+                        1,
+                        instant
+                )
         );
     }
 

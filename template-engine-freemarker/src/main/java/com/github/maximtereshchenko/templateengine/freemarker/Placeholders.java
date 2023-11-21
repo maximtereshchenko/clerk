@@ -2,6 +2,7 @@ package com.github.maximtereshchenko.templateengine.freemarker;
 
 import freemarker.template.TemplateHashModel;
 import freemarker.template.TemplateModel;
+
 import java.util.HashSet;
 import java.util.Set;
 

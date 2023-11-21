@@ -1,9 +1,10 @@
 package com.github.maximtereshchenko.clerk.write.domain;
 
-import java.util.UUID;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolver;
+
+import java.util.UUID;
 
 final class PredictableUUIDExtension implements ParameterResolver {
 

@@ -5,9 +5,9 @@ import java.util.Set;
 import java.util.UUID;
 
 public record TemplateCreated(
-    UUID aggregateId,
-    String name,
-    Set<String> placeholders,
-    long version,
-    Instant timestamp
+        UUID aggregateId,
+        String name,
+        Set<String> placeholders,
+        long version,
+        Instant timestamp
 ) implements Event {}

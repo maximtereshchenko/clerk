@@ -8,6 +8,7 @@ import com.github.maximtereshchenko.clerk.write.api.port.EventBus;
 import com.github.maximtereshchenko.clerk.write.api.port.EventStore;
 import com.github.maximtereshchenko.clerk.write.api.port.Files;
 import com.github.maximtereshchenko.clerk.write.api.port.TemplateEngine;
+
 import java.time.Clock;
 import java.util.Objects;
 import java.util.UUID;
@@ -17,18 +18,18 @@ public final class ClerkWriteFacade implements ClerkWriteModule {
     private final TemplateService templateService;
 
     public ClerkWriteFacade(
-        Files files,
-        TemplateEngine templateEngine,
-        EventStore eventStore,
-        EventBus eventBus,
-        Clock clock
+            Files files,
+            TemplateEngine templateEngine,
+            EventStore eventStore,
+            EventBus eventBus,
+            Clock clock
     ) {
         templateService = new TemplateService(files, templateEngine, eventStore, eventBus, clock);
     }
 
     @Override
     public void createTemplate(UUID id, UUID fileId, String name)
-        throws CouldNotExtendTimeToLive, CouldNotFindPlaceholders, TemplateIsEmpty {
+            throws CouldNotExtendTimeToLive, CouldNotFindPlaceholders, TemplateIsEmpty {
         templateService.createTemplate(id, fileId, name);
     }
 
@@ -67,11 +68,11 @@ public final class ClerkWriteFacade implements ClerkWriteModule {
 
         public ClerkWriteModule build() {
             return new ClerkWriteFacade(
-                Objects.requireNonNull(files),
-                Objects.requireNonNull(templateEngine),
-                Objects.requireNonNull(eventStore),
-                Objects.requireNonNull(eventBus),
-                Objects.requireNonNull(clock)
+                    Objects.requireNonNull(files),
+                    Objects.requireNonNull(templateEngine),
+                    Objects.requireNonNull(eventStore),
+                    Objects.requireNonNull(eventBus),
+                    Objects.requireNonNull(clock)
             );
         }
     }

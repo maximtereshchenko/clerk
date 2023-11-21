@@ -1,14 +1,15 @@
 package com.github.maximtereshchenko.clerk.write.domain;
 
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.ParameterContext;
+import org.junit.jupiter.api.extension.ParameterResolutionException;
+import org.junit.jupiter.api.extension.ParameterResolver;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.jupiter.api.extension.ParameterContext;
-import org.junit.jupiter.api.extension.ParameterResolutionException;
-import org.junit.jupiter.api.extension.ParameterResolver;
 
 final class ClasspathFileExtension implements ParameterResolver {
 
@@ -19,7 +20,7 @@ final class ClasspathFileExtension implements ParameterResolver {
 
     @Override
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
-        throws ParameterResolutionException {
+            throws ParameterResolutionException {
         return Paths.get(uri(parameterContext.getParameter().getName()));
     }
 
@@ -33,8 +34,8 @@ final class ClasspathFileExtension implements ParameterResolver {
 
     private URL url(String name) {
         var resource = Thread.currentThread()
-            .getContextClassLoader()
-            .getResource(name);
+                .getContextClassLoader()
+                .getResource(name);
         if (resource == null) {
             throw new ParameterResolutionException("Could not find resource '%s' in classpath".formatted(name));
         }

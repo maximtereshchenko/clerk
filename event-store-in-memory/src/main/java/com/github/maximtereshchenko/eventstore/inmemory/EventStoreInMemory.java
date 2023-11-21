@@ -2,11 +2,8 @@ package com.github.maximtereshchenko.eventstore.inmemory;
 
 import com.github.maximtereshchenko.clerk.write.api.port.EventStore;
 import com.github.maximtereshchenko.clerk.write.api.port.event.Event;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+
+import java.util.*;
 
 public final class EventStoreInMemory implements EventStore {
 

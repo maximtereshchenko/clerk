@@ -2,6 +2,7 @@ package com.github.maximtereshchenko.clerk.write.domain;
 
 import com.github.maximtereshchenko.clerk.write.api.port.EventBus;
 import com.github.maximtereshchenko.clerk.write.api.port.event.integration.IntegrationEvent;
+
 import java.util.ArrayList;
 import java.util.List;
 

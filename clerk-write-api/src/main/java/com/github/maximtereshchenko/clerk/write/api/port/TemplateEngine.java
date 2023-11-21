@@ -1,6 +1,7 @@
 package com.github.maximtereshchenko.clerk.write.api.port;
 
 import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotReadInputStream;
+
 import java.io.InputStream;
 import java.util.Set;
 
