@@ -2,6 +2,8 @@ rootProject.name = "clerk"
 include("clerk-write-api")
 include("clerk-write")
 include("files-in-memory")
+include("event-store-in-memory")
+include("template-engine-freemarker")
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
@@ -11,6 +13,7 @@ dependencyResolutionManagement {
             library("junit-engine", "org.junit.jupiter", "junit-jupiter-engine")
                 .versionRef(junit)
             library("assertj", "org.assertj:assertj-core:3.24.2")
+            library("freemarker", "org.freemarker:freemarker:2.3.32")
         }
     }
 }
