@@ -1,4 +1,4 @@
-module clerk.write {
-    requires clerk.write.api;
-    exports com.github.xini1.clerk.write.domain;
+module com.github.maximtereshchenko.clerk.write {
+    requires com.github.maximtereshchenko.clerk.write.api;
+    exports com.github.maximtereshchenko.clerk.write.domain;
 }

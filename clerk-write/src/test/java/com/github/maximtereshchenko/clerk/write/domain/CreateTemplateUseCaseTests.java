@@ -1,12 +1,12 @@
-package com.github.xini1.clerk.write.domain;
+package com.github.maximtereshchenko.clerk.write.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.github.xini1.clerk.write.api.ClerkWriteModule;
-import com.github.xini1.clerk.write.api.exception.CouldNotExtendTimeToLive;
-import com.github.xini1.clerk.write.api.port.CouldNotFindFile;
-import com.github.xini1.files.inmemory.FilesInMemory;
+import com.github.maximtereshchenko.clerk.write.api.ClerkWriteModule;
+import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotExtendTimeToLive;
+import com.github.maximtereshchenko.clerk.write.api.port.CouldNotFindFile;
+import com.github.maximtereshchenko.files.inmemory.FilesInMemory;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.UUID;

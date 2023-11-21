@@ -1,7 +1,7 @@
-package com.github.xini1.files.inmemory;
+package com.github.maximtereshchenko.files.inmemory;
 
-import com.github.xini1.clerk.write.api.port.CouldNotFindFile;
-import com.github.xini1.clerk.write.api.port.Files;
+import com.github.maximtereshchenko.clerk.write.api.port.CouldNotFindFile;
+import com.github.maximtereshchenko.clerk.write.api.port.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Map;

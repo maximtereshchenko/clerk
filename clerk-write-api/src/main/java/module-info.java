@@ -1,5 +1,5 @@
-module clerk.write.api {
-    exports com.github.xini1.clerk.write.api;
-    exports com.github.xini1.clerk.write.api.port;
-    exports com.github.xini1.clerk.write.api.exception;
+module com.github.maximtereshchenko.clerk.write.api {
+    exports com.github.maximtereshchenko.clerk.write.api;
+    exports com.github.maximtereshchenko.clerk.write.api.port;
+    exports com.github.maximtereshchenko.clerk.write.api.exception;
 }

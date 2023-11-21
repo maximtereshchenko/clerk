@@ -1,8 +1,8 @@
-package com.github.xini1.clerk.write.domain;
+package com.github.maximtereshchenko.clerk.write.domain;
 
-import com.github.xini1.clerk.write.api.ClerkWriteModule;
-import com.github.xini1.clerk.write.api.exception.CouldNotExtendTimeToLive;
-import com.github.xini1.clerk.write.api.port.Files;
+import com.github.maximtereshchenko.clerk.write.api.ClerkWriteModule;
+import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotExtendTimeToLive;
+import com.github.maximtereshchenko.clerk.write.api.port.Files;
 import java.util.UUID;
 
 public final class ClerkWriteFacade implements ClerkWriteModule {

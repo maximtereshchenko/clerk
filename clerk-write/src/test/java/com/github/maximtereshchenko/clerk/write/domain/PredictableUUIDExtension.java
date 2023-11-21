@@ -1,4 +1,4 @@
-package com.github.xini1.clerk.write.domain;
+package com.github.maximtereshchenko.clerk.write.domain;
 
 import java.util.UUID;
 import org.junit.jupiter.api.extension.ExtensionContext;

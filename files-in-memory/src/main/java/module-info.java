@@ -1,4 +1,4 @@
-module files.inmemory {
-    requires clerk.write.api;
-    exports com.github.xini1.files.inmemory;
+module com.github.maximtereshchenko.files.inmemory {
+    requires com.github.maximtereshchenko.clerk.write.api;
+    exports com.github.maximtereshchenko.files.inmemory;
 }

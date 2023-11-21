@@ -1,4 +1,4 @@
-package com.github.xini1.clerk.write.api.exception;
+package com.github.maximtereshchenko.clerk.write.api.exception;
 
 import java.util.UUID;
 

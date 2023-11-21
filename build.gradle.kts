@@ -1,5 +1,5 @@
 allprojects {
-    group = "com.github.xini1"
+    group = "com.github.maximtereshchenko"
     version = "1.0.0"
 }
 

@@ -1,4 +1,4 @@
-package com.github.xini1.clerk.write.api.port;
+package com.github.maximtereshchenko.clerk.write.api.port;
 
 import java.time.Instant;
 import java.util.UUID;
