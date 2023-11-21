@@ -3,16 +3,20 @@ package com.github.maximtereshchenko.clerk.write.domain;
 import com.github.maximtereshchenko.clerk.write.api.ClerkWriteModule;
 import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotFindTemplate;
 import com.github.maximtereshchenko.clerk.write.api.exception.ValuesAreRequired;
+import com.github.maximtereshchenko.clerk.write.api.port.Files;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ExtendWith({ClasspathFileExtension.class, PredictableUUIDExtension.class, ClerkWriteModuleExtension.class})
-final class CreateDocumentFromTemplateUseCaseTests {
+final class CreateDocumentFromTemplateUseCaseTests extends UseCaseTest {
 
     @Test
     void givenValuesAreMissing_whenCreateDocument_thenValuesAreRequiredThrown(
@@ -35,5 +39,24 @@ final class CreateDocumentFromTemplateUseCaseTests {
                 .isInstanceOf(CouldNotFindTemplate.class)
                 .hasMessageContaining(documentId.toString())
                 .hasMessageContaining(templateId.toString());
+    }
+
+    @Test
+    void givenTemplateExists_whenCreateDocument_thenDocumentIsPersisted(
+            Files files,
+            UUID fileId,
+            Path template,
+            UUID templateId,
+            UUID documentId,
+            ClerkWriteModule module
+    ) throws Exception {
+        persistFile(files, fileId, template);
+        module.createTemplate(templateId, fileId, "name");
+
+        module.createDocument(documentId, templateId, Map.of("placeholder", "value"));
+
+        assertThat(files.inputStream(documentId))
+                .asString(StandardCharsets.UTF_8)
+                .isEqualToIgnoringNewLines("value");
     }
 }

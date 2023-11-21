@@ -3,10 +3,7 @@ package com.github.maximtereshchenko.files.inmemory;
 import com.github.maximtereshchenko.clerk.write.api.port.Files;
 import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotFindFile;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
-import java.nio.file.Path;
+import java.io.*;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,25 +23,49 @@ public final class FilesInMemory implements Files {
 
     @Override
     public synchronized InputStream inputStream(UUID id) {
-        try {
-            return java.nio.file.Files.newInputStream(fileDetails.get(id).path());
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        return new ByteArrayInputStream(fileDetails.get(id).content());
     }
 
-    public synchronized void save(UUID id, Path path, Instant timeToLive) {
-        fileDetails.put(id, new FileDetails(path, timeToLive));
+    @Override
+    public synchronized void persist(UUID id, Instant timeToLive, OutputStreamConsumer consumer) {
+
+        fileDetails.put(id, new FileDetails(bytes(consumer), timeToLive));
     }
 
     public synchronized Instant timeToLive(UUID id) {
         return fileDetails.get(id).timeToLive();
     }
 
-    private record FileDetails(Path path, Instant timeToLive) {
+    private byte[] bytes(OutputStreamConsumer consumer) {
+        try {
+            var outputStream = new ByteArrayOutputStream();
+            consumer.accept(outputStream);
+            return outputStream.toByteArray();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private static final class FileDetails {
+
+        private final byte[] content;
+        private final Instant timeToLive;
+
+        private FileDetails(byte[] content, Instant timeToLive) {
+            this.content = content;
+            this.timeToLive = timeToLive;
+        }
 
         FileDetails withTimeToLive(Instant timeToLive) {
-            return new FileDetails(path, timeToLive);
+            return new FileDetails(content, timeToLive);
+        }
+
+        byte[] content() {
+            return content;
+        }
+
+        Instant timeToLive() {
+            return timeToLive;
         }
     }
 }

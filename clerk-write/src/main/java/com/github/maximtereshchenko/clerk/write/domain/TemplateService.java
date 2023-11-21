@@ -5,7 +5,6 @@ import com.github.maximtereshchenko.clerk.write.api.exception.*;
 import com.github.maximtereshchenko.clerk.write.api.port.*;
 import com.github.maximtereshchenko.clerk.write.api.port.event.TemplateCreated;
 import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotFindFile;
-import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotReadInputStream;
 
 import java.io.IOException;
 import java.time.Clock;
@@ -76,7 +75,7 @@ final class TemplateService implements CreateTemplateUseCase {
     private Set<String> placeholders(UUID id, UUID fileId) throws CouldNotFindPlaceholders {
         try (var inputStream = files.inputStream(fileId)) {
             return templateEngine.placeholders(inputStream);
-        } catch (CouldNotFindFile | CouldNotReadInputStream | IOException e) {
+        } catch (CouldNotFindFile | IOException e) {
             throw new CouldNotFindPlaceholders(id, fileId, e);
         }
     }

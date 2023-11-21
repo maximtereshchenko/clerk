@@ -1,13 +1,15 @@
 package com.github.maximtereshchenko.clerk.write.domain;
 
 import com.github.maximtereshchenko.clerk.write.api.ClerkWriteModule;
-import com.github.maximtereshchenko.clerk.write.api.exception.*;
+import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotExtendTimeToLive;
+import com.github.maximtereshchenko.clerk.write.api.exception.NameIsRequired;
+import com.github.maximtereshchenko.clerk.write.api.exception.TemplateIsEmpty;
+import com.github.maximtereshchenko.clerk.write.api.exception.TemplateWithIdExists;
+import com.github.maximtereshchenko.clerk.write.api.port.Files;
 import com.github.maximtereshchenko.clerk.write.api.port.PersistentTemplate;
 import com.github.maximtereshchenko.clerk.write.api.port.Templates;
 import com.github.maximtereshchenko.clerk.write.api.port.event.TemplateCreated;
 import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotFindFile;
-import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotReadInputStream;
-import com.github.maximtereshchenko.clerk.write.domain.ClerkWriteFacade.Builder;
 import com.github.maximtereshchenko.files.inmemory.FilesInMemory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,7 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ExtendWith({ClasspathFileExtension.class, PredictableUUIDExtension.class, ClerkWriteModuleExtension.class})
-final class CreateTemplateUseCaseTests {
+final class CreateTemplateUseCaseTests extends UseCaseTest {
 
     @Test
     void givenFileExists_whenCreateTemplate_thenFileTimeToLiveExtended(
@@ -32,7 +34,7 @@ final class CreateTemplateUseCaseTests {
             UUID templateId,
             ClerkWriteModule module
     ) throws Exception {
-        files.save(fileId, template, Instant.MIN);
+        persistFile(files, fileId, template);
 
         module.createTemplate(templateId, fileId, "name");
 
@@ -54,14 +56,14 @@ final class CreateTemplateUseCaseTests {
 
     @Test
     void givenFileContainsPlaceholders_whenCreateTemplate_thenTemplatePersisted(
-            FilesInMemory files,
+            Files files,
             UUID fileId,
             Path template,
             UUID templateId,
             Templates templates,
             ClerkWriteModule module
     ) throws Exception {
-        files.save(fileId, template, Instant.MIN);
+        persistFile(files, fileId, template);
 
         module.createTemplate(templateId, fileId, "name");
 
@@ -77,34 +79,14 @@ final class CreateTemplateUseCaseTests {
     }
 
     @Test
-    void givenTemplateEngineFailed_whenCreateTemplate_thenCouldNotFindPlaceholdersThrown(
-            FilesInMemory files,
-            UUID fileId,
-            Path template,
-            UUID templateId,
-            Builder builder
-    ) {
-        files.save(fileId, template, Instant.MIN);
-
-        var module = builder.withTemplateEngine(new ExceptionThrowingTemplateEngine())
-                .build();
-
-        assertThatThrownBy(() -> module.createTemplate(templateId, fileId, "name"))
-                .isInstanceOf(CouldNotFindPlaceholders.class)
-                .hasMessageContaining(templateId.toString())
-                .hasMessageContaining(fileId.toString())
-                .hasCauseInstanceOf(CouldNotReadInputStream.class);
-    }
-
-    @Test
     void givenTemplateIsEmpty_whenCreateTemplate_thenTemplateIsEmptyThrown(
-            FilesInMemory files,
+            Files files,
             UUID fileId,
             Path emptyTemplate,
             UUID templateId,
             ClerkWriteModule module
     ) {
-        files.save(fileId, emptyTemplate, Instant.MIN);
+        persistFile(files, fileId, emptyTemplate);
 
         assertThatThrownBy(() -> module.createTemplate(templateId, fileId, "name"))
                 .isInstanceOf(TemplateIsEmpty.class)
@@ -114,7 +96,7 @@ final class CreateTemplateUseCaseTests {
 
     @Test
     void givenTemplateIsCreated_whenCreateTemplate_thenTemplateCreatedIntegrationEventPublished(
-            FilesInMemory files,
+            Files files,
             UUID fileId,
             Path template,
             UUID templateId,
@@ -122,7 +104,7 @@ final class CreateTemplateUseCaseTests {
             Clock clock,
             ClerkWriteModule module
     ) throws Exception {
-        files.save(fileId, template, Instant.MIN);
+        persistFile(files, fileId, template);
 
         module.createTemplate(templateId, fileId, "name");
 
@@ -150,13 +132,13 @@ final class CreateTemplateUseCaseTests {
 
     @Test
     void givenTemplateExists_whenCreateTemplate_thenTemplateWithIdExistsThrown(
-            FilesInMemory files,
+            Files files,
             UUID fileId,
             Path template,
             UUID templateId,
             ClerkWriteModule module
     ) throws Exception {
-        files.save(fileId, template, Instant.MIN);
+        persistFile(files, fileId, template);
         module.createTemplate(templateId, fileId, "name");
 
         assertThatThrownBy(() -> module.createTemplate(templateId, fileId, "different name"))

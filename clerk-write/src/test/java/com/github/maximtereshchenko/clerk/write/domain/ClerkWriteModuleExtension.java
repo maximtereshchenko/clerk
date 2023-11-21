@@ -1,6 +1,7 @@
 package com.github.maximtereshchenko.clerk.write.domain;
 
 import com.github.maximtereshchenko.clerk.write.api.ClerkWriteModule;
+import com.github.maximtereshchenko.clerk.write.api.port.Files;
 import com.github.maximtereshchenko.clerk.write.api.port.Templates;
 import com.github.maximtereshchenko.clerk.write.domain.ClerkWriteFacade.Builder;
 import com.github.maximtereshchenko.eventstore.inmemory.TemplatesInMemory;
@@ -45,6 +46,7 @@ final class ClerkWriteModuleExtension implements ParameterResolver {
         ) {
             this(
                     Map.of(
+                            Files.class, files,
                             FilesInMemory.class, files,
                             Templates.class, eventStore,
                             Clock.class, clock,

@@ -83,7 +83,9 @@ public final class ClerkWriteFacade implements ClerkWriteModule {
                     ),
                     new DocumentService(
                             Objects.requireNonNull(templates),
-                            Objects.requireNonNull(files)
+                            Objects.requireNonNull(files),
+                            templateEngine,
+                            clock
                     )
             );
         }

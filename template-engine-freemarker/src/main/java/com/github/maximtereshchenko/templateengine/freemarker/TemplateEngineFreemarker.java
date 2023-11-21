@@ -1,17 +1,14 @@
 package com.github.maximtereshchenko.templateengine.freemarker;
 
 import com.github.maximtereshchenko.clerk.write.api.port.TemplateEngine;
-import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotReadInputStream;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Writer;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.Set;
 
 public final class TemplateEngineFreemarker implements TemplateEngine {
@@ -31,14 +28,24 @@ public final class TemplateEngineFreemarker implements TemplateEngine {
     }
 
     @Override
-    public Set<String> placeholders(InputStream inputStream) throws CouldNotReadInputStream {
+    public Set<String> placeholders(InputStream inputStream) {
         try {
             var template = new Template("", new InputStreamReader(inputStream), configuration);
             var placeholders = new Placeholders();
             template.process(placeholders, Writer.nullWriter());
             return placeholders.collected();
         } catch (IOException | TemplateException e) {
-            throw new CouldNotReadInputStream(e);
+            throw new CouldNotProcessTemplate(e);
+        }
+    }
+
+    @Override
+    public void fill(InputStream inputStream, Map<String, String> values, OutputStream outputStream) {
+        try {
+            var template = new Template("", new InputStreamReader(inputStream), configuration);
+            template.process(values, new OutputStreamWriter(outputStream));
+        } catch (IOException | TemplateException e) {
+            throw new CouldNotProcessTemplate(e);
         }
     }
 }
