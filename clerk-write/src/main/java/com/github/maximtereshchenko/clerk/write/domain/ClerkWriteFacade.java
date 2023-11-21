@@ -74,13 +74,13 @@ public final class ClerkWriteFacade implements ClerkWriteModule {
 
         public ClerkWriteModule build() {
             Objects.requireNonNull(files);
-                    Objects.requireNonNull(templateEngine);
-                    Objects.requireNonNull(templates);
-                    Objects.requireNonNull(eventBus);
-                    Objects.requireNonNull(clock);
+            Objects.requireNonNull(templateEngine);
+            Objects.requireNonNull(templates);
+            Objects.requireNonNull(eventBus);
+            Objects.requireNonNull(clock);
             return new ClerkWriteFacade(
-                    new TemplateService(files,templateEngine,templates,eventBus,clock),
-                    new DocumentService(templates,files,templateEngine, eventBus, clock)
+                    new TemplateService(files, templateEngine, templates, eventBus, clock),
+                    new DocumentService(templates, files, templateEngine, eventBus, clock)
             );
         }
     }

@@ -1,9 +1,9 @@
 rootProject.name = "clerk"
 include("clerk-write-api")
 include("clerk-write")
-include("files-in-memory")
-include("templates-in-memory")
-include("template-engine-freemarker")
+include("clerk-write-files-in-memory")
+include("clerk-write-templates-in-memory")
+include("clerk-write-template-engine-freemarker")
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {

@@ -5,9 +5,9 @@ plugins {
 
 dependencies {
     implementation(project(":clerk-write-api"))
-    testImplementation(project(":files-in-memory"))
-    testImplementation(project(":templates-in-memory"))
-    testImplementation(project(":template-engine-freemarker"))
+    testImplementation(project(":clerk-write-files-in-memory"))
+    testImplementation(project(":clerk-write-templates-in-memory"))
+    testImplementation(project(":clerk-write-template-engine-freemarker"))
     testImplementation(libs.junit)
     testImplementation(libs.assertj)
 }

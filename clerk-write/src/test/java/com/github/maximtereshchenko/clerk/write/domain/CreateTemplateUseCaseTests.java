@@ -10,7 +10,7 @@ import com.github.maximtereshchenko.clerk.write.api.port.PersistentTemplate;
 import com.github.maximtereshchenko.clerk.write.api.port.Templates;
 import com.github.maximtereshchenko.clerk.write.api.port.event.TemplateCreated;
 import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotFindFile;
-import com.github.maximtereshchenko.files.inmemory.FilesInMemory;
+import com.github.maximtereshchenko.clerk.write.files.inmemory.FilesInMemory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
