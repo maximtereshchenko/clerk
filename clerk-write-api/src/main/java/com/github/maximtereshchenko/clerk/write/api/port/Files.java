@@ -1,5 +1,6 @@
 package com.github.maximtereshchenko.clerk.write.api.port;
 
+import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotFindFile;
 import java.io.InputStream;
 import java.time.Instant;
 import java.util.UUID;

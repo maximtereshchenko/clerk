@@ -1,7 +1,7 @@
 package com.github.maximtereshchenko.files.inmemory;
 
-import com.github.maximtereshchenko.clerk.write.api.port.CouldNotFindFile;
 import com.github.maximtereshchenko.clerk.write.api.port.Files;
+import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotFindFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;

@@ -5,8 +5,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.github.maximtereshchenko.clerk.write.api.ClerkWriteModule;
 import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotExtendTimeToLive;
-import com.github.maximtereshchenko.clerk.write.api.port.CouldNotFindFile;
+import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotFindPlaceholders;
 import com.github.maximtereshchenko.clerk.write.api.port.event.TemplateCreated;
+import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotFindFile;
+import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotReadInputStream;
 import com.github.maximtereshchenko.eventstore.inmemory.EventStoreInMemory;
 import com.github.maximtereshchenko.files.inmemory.FilesInMemory;
 import com.github.maximtereshchenko.templateengine.freemarker.TemplateEngineFreemarker;
@@ -25,7 +27,7 @@ final class CreateTemplateUseCaseTests {
     private final FilesInMemory files = new FilesInMemory();
     private final EventStoreInMemory eventStore = new EventStoreInMemory();
     private final Clock clock = Clock.fixed(Instant.parse("2020-01-01T00:00:00Z"), ZoneOffset.UTC);
-    private final ClerkWriteModule module = new ClerkWriteFacade(
+    private final ClerkWriteModule testModule = new ClerkWriteFacade(
         files,
         TemplateEngineFreemarker.createDefault(),
         eventStore,
@@ -37,14 +39,14 @@ final class CreateTemplateUseCaseTests {
         throws Exception {
         files.save(fileId, template, Instant.MIN);
 
-        module.createTemplate(templateId, fileId, "name");
+        testModule.createTemplate(templateId, fileId, "name");
 
         assertThat(files.timeToLive(fileId)).isEqualTo(Instant.MAX);
     }
 
     @Test
     void givenFileDoNotExist_whenCreateTemplate_thenCouldNotExtendTimeToLiveThrown(UUID fileId, UUID templateId) {
-        assertThatThrownBy(() -> module.createTemplate(templateId, fileId, "name"))
+        assertThatThrownBy(() -> testModule.createTemplate(templateId, fileId, "name"))
             .isInstanceOf(CouldNotExtendTimeToLive.class)
             .hasMessage(templateId.toString())
             .hasCauseInstanceOf(CouldNotFindFile.class);
@@ -58,7 +60,7 @@ final class CreateTemplateUseCaseTests {
     ) throws Exception {
         files.save(fileId, template, Instant.MIN);
 
-        module.createTemplate(templateId, fileId, "name");
+        testModule.createTemplate(templateId, fileId, "name");
 
         assertThat(eventStore.events(templateId))
             .containsExactly(
@@ -70,5 +72,26 @@ final class CreateTemplateUseCaseTests {
                     clock.instant()
                 )
             );
+    }
+
+    @Test
+    void givenTemplateEngineFailed_whenCreateTemplate_thenCouldNotFindPlaceholdersThrown(
+        UUID fileId,
+        Path template,
+        UUID templateId
+    ) {
+        files.save(fileId, template, Instant.MIN);
+
+        var testModule = new ClerkWriteFacade(
+            files,
+            new ExceptionThrowingTemplateEngine(),
+            eventStore,
+            clock
+        );
+
+        assertThatThrownBy(() -> testModule.createTemplate(templateId, fileId, "name"))
+            .isInstanceOf(CouldNotFindPlaceholders.class)
+            .hasMessage(fileId.toString())
+            .hasCauseInstanceOf(CouldNotReadInputStream.class);
     }
 }
