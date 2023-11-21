@@ -1,3 +1,3 @@
 package com.github.maximtereshchenko.clerk.read.api;
 
-public interface ClerkReadModule extends UpdateTemplatesUseCase, ViewTemplatesUseCase {}
+public interface ClerkReadModule extends OnTemplateCreatedUseCase, ViewTemplatesUseCase, ViewPlaceholdersUseCase {}

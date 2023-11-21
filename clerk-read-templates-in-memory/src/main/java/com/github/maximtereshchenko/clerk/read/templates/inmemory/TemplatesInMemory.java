@@ -1,4 +1,4 @@
-package com.github.maximtereshchenko.clerk.write.eventstore.inmemory;
+package com.github.maximtereshchenko.clerk.read.templates.inmemory;
 
 import com.github.maximtereshchenko.clerk.read.api.TemplatePresentation;
 import com.github.maximtereshchenko.clerk.read.api.port.Templates;

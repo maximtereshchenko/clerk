@@ -9,6 +9,7 @@ include("clerk-events")
 include("clerk-read")
 include("test-common")
 include("clerk-read-templates-in-memory")
+include("clerk-read-placeholders-in-memory")
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
