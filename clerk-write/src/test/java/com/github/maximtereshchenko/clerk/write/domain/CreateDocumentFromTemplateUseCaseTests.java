@@ -4,11 +4,13 @@ import com.github.maximtereshchenko.clerk.write.api.ClerkWriteModule;
 import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotFindTemplate;
 import com.github.maximtereshchenko.clerk.write.api.exception.ValuesAreRequired;
 import com.github.maximtereshchenko.clerk.write.api.port.Files;
+import com.github.maximtereshchenko.clerk.write.api.port.event.DocumentCreated;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.time.Clock;
 import java.util.Map;
 import java.util.UUID;
 
@@ -58,5 +60,26 @@ final class CreateDocumentFromTemplateUseCaseTests extends UseCaseTest {
         assertThat(files.inputStream(documentId))
                 .asString(StandardCharsets.UTF_8)
                 .isEqualToIgnoringNewLines("value");
+    }
+
+    @Test
+    void givenDocumentCreated_whenCreateDocument_thenDocumentCreatedEventPublished(
+            Files files,
+            UUID fileId,
+            Path template,
+            UUID templateId,
+            UUID documentId,
+            EventBusInMemory eventBus,
+            Clock clock,
+            ClerkWriteModule module
+    ) throws Exception {
+        persistFile(files, fileId, template);
+        module.createTemplate(templateId, fileId, "name");
+        eventBus.clear();
+
+        module.createDocument(documentId, templateId, Map.of("placeholder", "value"));
+
+        assertThat(eventBus.published())
+                .containsExactly(new DocumentCreated(documentId, clock.instant()));
     }
 }

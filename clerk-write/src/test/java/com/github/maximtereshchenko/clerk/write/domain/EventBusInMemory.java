@@ -15,6 +15,10 @@ final class EventBusInMemory implements EventBus {
         published.add(event);
     }
 
+    void clear() {
+        published.clear();
+    }
+
     List<Event> published() {
         return List.copyOf(published);
     }

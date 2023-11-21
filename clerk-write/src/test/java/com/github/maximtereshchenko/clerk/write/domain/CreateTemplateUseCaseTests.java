@@ -95,7 +95,7 @@ final class CreateTemplateUseCaseTests extends UseCaseTest {
     }
 
     @Test
-    void givenTemplateIsCreated_whenCreateTemplate_thenTemplateCreatedIntegrationEventPublished(
+    void givenTemplateIsCreated_whenCreateTemplate_thenTemplateCreatedEventPublished(
             Files files,
             UUID fileId,
             Path template,
