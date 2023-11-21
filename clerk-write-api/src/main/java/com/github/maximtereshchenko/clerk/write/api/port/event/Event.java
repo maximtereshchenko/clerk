@@ -7,7 +7,5 @@ public sealed interface Event permits TemplateCreated {
 
     UUID aggregateId();
 
-    long version();
-
     Instant timestamp();
 }

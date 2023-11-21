@@ -1,8 +1,9 @@
 package com.github.maximtereshchenko.clerk.write.domain;
 
 import com.github.maximtereshchenko.clerk.write.api.ClerkWriteModule;
+import com.github.maximtereshchenko.clerk.write.api.port.Templates;
 import com.github.maximtereshchenko.clerk.write.domain.ClerkWriteFacade.Builder;
-import com.github.maximtereshchenko.eventstore.inmemory.EventStoreInMemory;
+import com.github.maximtereshchenko.eventstore.inmemory.TemplatesInMemory;
 import com.github.maximtereshchenko.files.inmemory.FilesInMemory;
 import com.github.maximtereshchenko.templateengine.freemarker.TemplateEngineFreemarker;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -37,7 +38,7 @@ final class ClerkWriteModuleExtension implements ParameterResolver {
 
         private Context(
                 FilesInMemory files,
-                EventStoreInMemory eventStore,
+                Templates eventStore,
                 Clock clock,
                 EventBusInMemory eventBus,
                 Builder builder
@@ -45,7 +46,7 @@ final class ClerkWriteModuleExtension implements ParameterResolver {
             this(
                     Map.of(
                             FilesInMemory.class, files,
-                            EventStoreInMemory.class, eventStore,
+                            Templates.class, eventStore,
                             Clock.class, clock,
                             EventBusInMemory.class, eventBus,
                             Builder.class, builder,
@@ -56,16 +57,16 @@ final class ClerkWriteModuleExtension implements ParameterResolver {
 
         static Context create() {
             var files = new FilesInMemory();
-            var eventStore = new EventStoreInMemory();
+            var templates = new TemplatesInMemory();
             var clock = Clock.fixed(Instant.parse("2020-01-01T00:00:00Z"), ZoneOffset.UTC);
             var eventBus = new EventBusInMemory();
             var builder = new Builder()
                     .withFiles(files)
-                    .withEventStore(eventStore)
+                    .withTemplates(templates)
                     .withClock(clock)
                     .withTemplateEngine(TemplateEngineFreemarker.createDefault())
                     .withEventBus(eventBus);
-            return new Context(files, eventStore, clock, eventBus, builder);
+            return new Context(files, templates, clock, eventBus, builder);
         }
 
         boolean supports(Class<?> type) {

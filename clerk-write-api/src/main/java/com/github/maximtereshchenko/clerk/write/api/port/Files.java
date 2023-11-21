@@ -10,5 +10,5 @@ public interface Files {
 
     void setTimeToLive(UUID id, Instant timeToLive) throws CouldNotFindFile;
 
-    InputStream inputStream(UUID id);
+    InputStream inputStream(UUID id) throws CouldNotFindFile;
 }

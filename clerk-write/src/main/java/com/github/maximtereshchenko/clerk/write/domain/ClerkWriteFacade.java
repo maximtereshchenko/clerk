@@ -3,29 +3,28 @@ package com.github.maximtereshchenko.clerk.write.domain;
 import com.github.maximtereshchenko.clerk.write.api.ClerkWriteModule;
 import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotExtendTimeToLive;
 import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotFindPlaceholders;
+import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotFindTemplate;
 import com.github.maximtereshchenko.clerk.write.api.exception.TemplateIsEmpty;
 import com.github.maximtereshchenko.clerk.write.api.port.EventBus;
-import com.github.maximtereshchenko.clerk.write.api.port.EventStore;
 import com.github.maximtereshchenko.clerk.write.api.port.Files;
 import com.github.maximtereshchenko.clerk.write.api.port.TemplateEngine;
+import com.github.maximtereshchenko.clerk.write.api.port.Templates;
 
 import java.time.Clock;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
 public final class ClerkWriteFacade implements ClerkWriteModule {
 
     private final TemplateService templateService;
+    private final DocumentService documentService;
 
-    public ClerkWriteFacade(
-            Files files,
-            TemplateEngine templateEngine,
-            EventStore eventStore,
-            EventBus eventBus,
-            Clock clock
-    ) {
-        templateService = new TemplateService(files, templateEngine, eventStore, eventBus, clock);
+    private ClerkWriteFacade(TemplateService templateService, DocumentService documentService) {
+        this.templateService = templateService;
+        this.documentService = documentService;
     }
+
 
     @Override
     public void createTemplate(UUID id, UUID fileId, String name)
@@ -33,11 +32,16 @@ public final class ClerkWriteFacade implements ClerkWriteModule {
         templateService.createTemplate(id, fileId, name);
     }
 
+    @Override
+    public void createDocument(UUID id, UUID templateId, Map<String, String> values) throws CouldNotFindTemplate {
+        documentService.createDocument(id, templateId, values);
+    }
+
     public static final class Builder {
 
         private Files files;
         private TemplateEngine templateEngine;
-        private EventStore eventStore;
+        private Templates templates;
         private EventBus eventBus;
         private Clock clock;
 
@@ -51,8 +55,8 @@ public final class ClerkWriteFacade implements ClerkWriteModule {
             return this;
         }
 
-        public Builder withEventStore(EventStore eventStore) {
-            this.eventStore = eventStore;
+        public Builder withTemplates(Templates templates) {
+            this.templates = templates;
             return this;
         }
 
@@ -68,11 +72,17 @@ public final class ClerkWriteFacade implements ClerkWriteModule {
 
         public ClerkWriteModule build() {
             return new ClerkWriteFacade(
-                    Objects.requireNonNull(files),
-                    Objects.requireNonNull(templateEngine),
-                    Objects.requireNonNull(eventStore),
-                    Objects.requireNonNull(eventBus),
-                    Objects.requireNonNull(clock)
+                    new TemplateService(
+                            Objects.requireNonNull(files),
+                            Objects.requireNonNull(templateEngine),
+                            Objects.requireNonNull(templates),
+                            Objects.requireNonNull(eventBus),
+                            Objects.requireNonNull(clock)
+                    ),
+                    new DocumentService(
+                            Objects.requireNonNull(templates),
+                            Objects.requireNonNull(files)
+                    )
             );
         }
     }

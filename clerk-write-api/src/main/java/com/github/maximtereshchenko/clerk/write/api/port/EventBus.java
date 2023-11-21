@@ -1,8 +1,8 @@
 package com.github.maximtereshchenko.clerk.write.api.port;
 
-import com.github.maximtereshchenko.clerk.write.api.port.event.integration.IntegrationEvent;
+import com.github.maximtereshchenko.clerk.write.api.port.event.Event;
 
 public interface EventBus {
 
-    void publish(IntegrationEvent event);
+    void publish(Event event);
 }

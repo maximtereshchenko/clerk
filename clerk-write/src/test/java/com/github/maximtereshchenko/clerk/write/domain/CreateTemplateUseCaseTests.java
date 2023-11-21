@@ -4,12 +4,12 @@ import com.github.maximtereshchenko.clerk.write.api.ClerkWriteModule;
 import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotExtendTimeToLive;
 import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotFindPlaceholders;
 import com.github.maximtereshchenko.clerk.write.api.exception.TemplateIsEmpty;
+import com.github.maximtereshchenko.clerk.write.api.port.PersistentTemplate;
+import com.github.maximtereshchenko.clerk.write.api.port.Templates;
 import com.github.maximtereshchenko.clerk.write.api.port.event.TemplateCreated;
-import com.github.maximtereshchenko.clerk.write.api.port.event.integration.TemplateCreatedIntegrationEvent;
 import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotFindFile;
 import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotReadInputStream;
 import com.github.maximtereshchenko.clerk.write.domain.ClerkWriteFacade.Builder;
-import com.github.maximtereshchenko.eventstore.inmemory.EventStoreInMemory;
 import com.github.maximtereshchenko.files.inmemory.FilesInMemory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -55,27 +55,25 @@ final class CreateTemplateUseCaseTests {
     }
 
     @Test
-    void givenFileContainsPlaceholders_whenCreateTemplate_thenTemplateCreatedEventSaved(
+    void givenFileContainsPlaceholders_whenCreateTemplate_thenTemplatePersisted(
             FilesInMemory files,
             UUID fileId,
             Path template,
             UUID templateId,
-            EventStoreInMemory eventStore,
-            Clock clock,
+            Templates templates,
             ClerkWriteModule module
     ) throws Exception {
         files.save(fileId, template, Instant.MIN);
 
         module.createTemplate(templateId, fileId, "name");
 
-        assertThat(eventStore.events(templateId))
-                .containsExactly(
-                        new TemplateCreated(
+        assertThat(templates.findById(templateId))
+                .contains(
+                        new PersistentTemplate(
                                 templateId,
+                                fileId,
                                 "name",
-                                Set.of("placeholder"),
-                                1,
-                                clock.instant()
+                                Set.of("placeholder")
                         )
                 );
     }
@@ -132,11 +130,10 @@ final class CreateTemplateUseCaseTests {
 
         assertThat(eventBus.published())
                 .containsExactly(
-                        new TemplateCreatedIntegrationEvent(
+                        new TemplateCreated(
                                 templateId,
                                 "name",
                                 Set.of("placeholder"),
-                                1,
                                 clock.instant()
                         )
                 );

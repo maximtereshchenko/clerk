@@ -2,7 +2,7 @@ rootProject.name = "clerk"
 include("clerk-write-api")
 include("clerk-write")
 include("files-in-memory")
-include("event-store-in-memory")
+include("templates-in-memory")
 include("template-engine-freemarker")
 dependencyResolutionManagement {
     versionCatalogs {

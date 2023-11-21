@@ -4,12 +4,8 @@ import com.github.maximtereshchenko.clerk.write.api.CreateTemplateUseCase;
 import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotExtendTimeToLive;
 import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotFindPlaceholders;
 import com.github.maximtereshchenko.clerk.write.api.exception.TemplateIsEmpty;
-import com.github.maximtereshchenko.clerk.write.api.port.EventBus;
-import com.github.maximtereshchenko.clerk.write.api.port.EventStore;
-import com.github.maximtereshchenko.clerk.write.api.port.Files;
-import com.github.maximtereshchenko.clerk.write.api.port.TemplateEngine;
+import com.github.maximtereshchenko.clerk.write.api.port.*;
 import com.github.maximtereshchenko.clerk.write.api.port.event.TemplateCreated;
-import com.github.maximtereshchenko.clerk.write.api.port.event.integration.TemplateCreatedIntegrationEvent;
 import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotFindFile;
 import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotReadInputStream;
 
@@ -23,14 +19,14 @@ final class TemplateService implements CreateTemplateUseCase {
 
     private final Files files;
     private final TemplateEngine templateEngine;
-    private final EventStore eventStore;
+    private final Templates templates;
     private final EventBus eventBus;
     private final Clock clock;
 
-    TemplateService(Files files, TemplateEngine templateEngine, EventStore eventStore, EventBus eventBus, Clock clock) {
+    TemplateService(Files files, TemplateEngine templateEngine, Templates templates, EventBus eventBus, Clock clock) {
         this.files = files;
         this.templateEngine = templateEngine;
-        this.eventStore = eventStore;
+        this.templates = templates;
         this.eventBus = eventBus;
         this.clock = clock;
     }
@@ -43,31 +39,28 @@ final class TemplateService implements CreateTemplateUseCase {
         if (placeholders.isEmpty()) {
             throw new TemplateIsEmpty(id, fileId);
         }
-        var instant = clock.instant();
-        persistEvent(id, name, placeholders, instant);
-        publishIntegrationEvent(id, name, placeholders, instant);
+        persist(id, fileId, name, placeholders);
+        publishIntegrationEvent(id, name, placeholders);
     }
 
-    private void publishIntegrationEvent(UUID id, String name, Set<String> placeholders, Instant instant) {
+    private void publishIntegrationEvent(UUID id, String name, Set<String> placeholders) {
         eventBus.publish(
-                new TemplateCreatedIntegrationEvent(
-                        id,
-                        name,
-                        placeholders,
-                        1,
-                        instant
-                )
-        );
-    }
-
-    private void persistEvent(UUID id, String name, Set<String> placeholders, Instant instant) {
-        eventStore.persist(
                 new TemplateCreated(
                         id,
                         name,
                         placeholders,
-                        1,
-                        instant
+                        clock.instant()
+                )
+        );
+    }
+
+    private void persist(UUID id, UUID fileId, String name, Set<String> placeholders) {
+        templates.persist(
+                new PersistentTemplate(
+                        id,
+                        fileId,
+                        name,
+                        placeholders
                 )
         );
     }
@@ -75,7 +68,7 @@ final class TemplateService implements CreateTemplateUseCase {
     private Set<String> placeholders(UUID id, UUID fileId) throws CouldNotFindPlaceholders {
         try (var inputStream = files.inputStream(fileId)) {
             return templateEngine.placeholders(inputStream);
-        } catch (CouldNotReadInputStream | IOException e) {
+        } catch (CouldNotFindFile | CouldNotReadInputStream | IOException e) {
             throw new CouldNotFindPlaceholders(id, fileId, e);
         }
     }

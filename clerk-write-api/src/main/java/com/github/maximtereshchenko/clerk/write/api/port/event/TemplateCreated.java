@@ -8,6 +8,5 @@ public record TemplateCreated(
         UUID aggregateId,
         String name,
         Set<String> placeholders,
-        long version,
         Instant timestamp
 ) implements Event {}
