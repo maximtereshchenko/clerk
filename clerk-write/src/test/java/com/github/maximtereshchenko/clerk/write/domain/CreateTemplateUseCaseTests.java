@@ -3,6 +3,7 @@ package com.github.maximtereshchenko.clerk.write.domain;
 import com.github.maximtereshchenko.clerk.write.api.ClerkWriteModule;
 import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotExtendTimeToLive;
 import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotFindPlaceholders;
+import com.github.maximtereshchenko.clerk.write.api.exception.NameIsRequired;
 import com.github.maximtereshchenko.clerk.write.api.exception.TemplateIsEmpty;
 import com.github.maximtereshchenko.clerk.write.api.port.PersistentTemplate;
 import com.github.maximtereshchenko.clerk.write.api.port.Templates;
@@ -137,5 +138,16 @@ final class CreateTemplateUseCaseTests {
                                 clock.instant()
                         )
                 );
+    }
+
+    @Test
+    void givenNameIsMissing_whenCreateTemplate_thenNameIsRequiredThrown(
+            UUID templateId,
+            UUID fileId,
+            ClerkWriteModule module
+    ) {
+        assertThatThrownBy(() -> module.createTemplate(templateId, fileId, ""))
+                .isInstanceOf(NameIsRequired.class)
+                .hasMessage(templateId.toString());
     }
 }
