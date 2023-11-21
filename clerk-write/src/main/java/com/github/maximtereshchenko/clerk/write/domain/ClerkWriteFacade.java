@@ -34,7 +34,8 @@ public final class ClerkWriteFacade implements ClerkWriteModule {
     }
 
     @Override
-    public void createDocument(UUID id, UUID templateId, Map<String, String> values) throws CouldNotFindTemplate {
+    public void createDocument(UUID id, UUID templateId, Map<String, String> values)
+            throws CouldNotFindTemplate, ValuesAreRequired {
         documentService.createDocument(id, templateId, values);
     }
 
