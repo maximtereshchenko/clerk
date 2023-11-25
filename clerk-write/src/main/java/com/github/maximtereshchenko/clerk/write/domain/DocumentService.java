@@ -3,7 +3,7 @@ package com.github.maximtereshchenko.clerk.write.domain;
 import com.github.maximtereshchenko.clerk.event.DocumentCreated;
 import com.github.maximtereshchenko.clerk.write.api.CreateDocumentFromTemplateUseCase;
 import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotFindTemplate;
-import com.github.maximtereshchenko.clerk.write.api.exception.UnexpectedException;
+import com.github.maximtereshchenko.clerk.write.api.exception.UnexpectedResult;
 import com.github.maximtereshchenko.clerk.write.api.exception.ValuesAreRequired;
 import com.github.maximtereshchenko.clerk.write.api.port.EventBus;
 import com.github.maximtereshchenko.clerk.write.api.port.Files;
@@ -14,6 +14,7 @@ import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotFindF
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.time.Clock;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.UUID;
@@ -40,17 +41,20 @@ final class DocumentService implements CreateDocumentFromTemplateUseCase {
         if (values.isEmpty()) {
             throw new ValuesAreRequired(id);
         }
-        persistDocument(id, templateId, values);
-        eventBus.publish(new DocumentCreated(id, clock.instant()));
+        var instant = clock.instant();
+        var timeToLive = instant.plus(1, ChronoUnit.DAYS);
+        persistDocument(id, templateId, values, timeToLive);
+        eventBus.publish(new DocumentCreated(id, timeToLive, instant));
     }
 
-    private void persistDocument(UUID id, UUID templateId, Map<String, String> values) throws CouldNotFindTemplate {
+    private void persistDocument(
+            UUID id,
+            UUID templateId,
+            Map<String, String> values,
+            Instant timeToLive
+    ) throws CouldNotFindTemplate {
         var fileId = fileId(id, templateId);
-        files.persist(
-                id,
-                clock.instant().plus(1, ChronoUnit.DAYS),
-                outputStream -> writeDocument(values, outputStream, fileId)
-        );
+        files.persist(id, timeToLive, outputStream -> writeDocument(values, outputStream, fileId));
     }
 
     private void writeDocument(Map<String, String> values, OutputStream outputStream, UUID fileId) {
@@ -67,7 +71,7 @@ final class DocumentService implements CreateDocumentFromTemplateUseCase {
         try {
             return files.inputStream(fileId);
         } catch (CouldNotFindFile e) {
-            throw new UnexpectedException("Expected existing file " + fileId, e);
+            throw new UnexpectedResult("File %s should exist".formatted(fileId), e);
         }
     }
 }

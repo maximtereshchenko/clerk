@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.Clock;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.UUID;
 
@@ -81,6 +82,12 @@ final class CreateDocumentFromTemplateUseCaseTests extends UseCaseTest {
         module.createDocument(documentId, templateId, Map.of("placeholder", "value"));
 
         assertThat(eventBus.published())
-                .containsExactly(new DocumentCreated(documentId, clock.instant()));
+                .containsExactly(
+                        new DocumentCreated(
+                                documentId,
+                                clock.instant().plus(1, ChronoUnit.DAYS),
+                                clock.instant()
+                        )
+                );
     }
 }

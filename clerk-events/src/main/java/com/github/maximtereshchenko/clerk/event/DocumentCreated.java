@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record DocumentCreated(
-        UUID id,
+        UUID fileId,
+        Instant timeToLive,
         Instant timestamp
 ) implements Event {}
