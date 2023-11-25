@@ -21,4 +21,12 @@ final class OnDocumentCreatedUseCaseTests {
 
         assertThat(module.documents()).containsExactly(new DocumentPresentation(fileId, Instant.MAX, Instant.MIN));
     }
+
+    @Test
+    void givenOldEvent_whenOnDocumentCreated_thenDocumentISNotChanged(UUID fileId, ClerkReadModule module) {
+        module.onDocumentCreated(new DocumentCreated(fileId, Instant.MAX, Instant.MAX));
+        module.onDocumentCreated(new DocumentCreated(fileId, Instant.MIN, Instant.MIN));
+
+        assertThat(module.documents()).containsExactly(new DocumentPresentation(fileId, Instant.MAX, Instant.MAX));
+    }
 }
