@@ -9,6 +9,9 @@ import com.github.maximtereshchenko.test.TestContextExtension;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.Map;
 
 final class FileStorageModuleExtension extends TestContextExtension {
@@ -21,7 +24,8 @@ final class FileStorageModuleExtension extends TestContextExtension {
                             FileStorageModule.class,
                             new FileStorageFacade(
                                     new FilesOnDisk(Files.createTempDirectory(null)),
-                                    new FileLabelsInMemory()
+                                    new FileLabelsInMemory(),
+                                    Clock.fixed(Instant.parse("2020-01-01T00:00:00Z"), ZoneOffset.UTC)
                             )
                     )
             );

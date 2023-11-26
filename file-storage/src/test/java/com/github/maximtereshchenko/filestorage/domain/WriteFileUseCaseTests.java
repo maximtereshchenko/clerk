@@ -2,12 +2,16 @@ package com.github.maximtereshchenko.filestorage.domain;
 
 import com.github.maximtereshchenko.filestorage.api.FileStorageModule;
 import com.github.maximtereshchenko.filestorage.api.exception.CouldNotFindFile;
+import com.github.maximtereshchenko.filestorage.api.exception.FileIsExpired;
 import com.github.maximtereshchenko.test.ClasspathFileExtension;
 import com.github.maximtereshchenko.test.PredictableUUIDExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Instant;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -21,6 +25,20 @@ final class WriteFileUseCaseTests {
 
         assertThatThrownBy(() -> module.writeFile(id, outputStream))
                 .isInstanceOf(CouldNotFindFile.class)
+                .hasMessageContaining(id.toString());
+    }
+
+    @Test
+    void givenExpiredFile_whenWriteFile_thenFileIsExpiredThrown(Path file, UUID id, FileStorageModule module)
+            throws Exception {
+        try (var inputStream = Files.newInputStream(file)) {
+            module.persistFile(id, Instant.MIN, inputStream);
+        }
+        var outputStream = OutputStream.nullOutputStream();
+
+        assertThatThrownBy(() -> module.writeFile(id, outputStream))
+                .isInstanceOf(FileIsExpired.class)
+                .hasMessageContaining(id.toString())
                 .hasMessageContaining(id.toString());
     }
 }

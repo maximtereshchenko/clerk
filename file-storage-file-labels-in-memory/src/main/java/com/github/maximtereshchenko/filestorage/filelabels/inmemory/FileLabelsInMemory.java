@@ -5,6 +5,7 @@ import com.github.maximtereshchenko.filestorage.api.port.FileLabels;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 public final class FileLabelsInMemory implements FileLabels {
@@ -19,5 +20,10 @@ public final class FileLabelsInMemory implements FileLabels {
     @Override
     public synchronized boolean exists(UUID id) {
         return map.containsKey(id);
+    }
+
+    @Override
+    public synchronized Optional<FileLabel> findById(UUID id) {
+        return Optional.ofNullable(map.get(id));
     }
 }
