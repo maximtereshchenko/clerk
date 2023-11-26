@@ -2,9 +2,13 @@ package com.github.maximtereshchenko.clerk.write.domain;
 
 import com.github.maximtereshchenko.clerk.event.TemplateCreated;
 import com.github.maximtereshchenko.clerk.write.api.CreateTemplateUseCase;
-import com.github.maximtereshchenko.clerk.write.api.exception.*;
+import com.github.maximtereshchenko.clerk.write.api.exception.IdIsTaken;
+import com.github.maximtereshchenko.clerk.write.api.exception.NameIsRequired;
+import com.github.maximtereshchenko.clerk.write.api.exception.TemplateIsEmpty;
 import com.github.maximtereshchenko.clerk.write.api.port.*;
 import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotFindFile;
+import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotProcessFile;
+import com.github.maximtereshchenko.clerk.write.api.port.exception.FileIsExpired;
 
 import java.io.IOException;
 import java.time.Clock;
@@ -30,61 +34,32 @@ final class TemplateService implements CreateTemplateUseCase {
 
     @Override
     public void createTemplate(UUID id, UUID fileId, String name)
-            throws CouldNotExtendTimeToLive,
-            CouldNotFindPlaceholders,
-            TemplateIsEmpty,
+            throws IOException,
             NameIsRequired,
-            TemplateWithIdExists {
+            IdIsTaken,
+            FileIsExpired,
+            CouldNotFindFile,
+            TemplateIsEmpty,
+            CouldNotProcessFile {
         if (name.isBlank()) {
             throw new NameIsRequired(id);
         }
         if (templates.exists(id)) {
-            throw new TemplateWithIdExists(id);
+            throw new IdIsTaken(id);
         }
-        setTimeToLive(id, fileId);
-        var placeholders = placeholders(id, fileId);
+        files.setTimeToLive(fileId, Instant.MAX);
+        var placeholders = placeholders(fileId);
         if (placeholders.isEmpty()) {
             throw new TemplateIsEmpty(id, fileId);
         }
-        persist(id, fileId, name, placeholders);
-        publishIntegrationEvent(id, name, placeholders);
+        templates.persist(new PersistentTemplate(id, fileId, name, placeholders));
+        eventBus.publish(new TemplateCreated(id, name, placeholders, clock.instant()));
     }
 
-    private void publishIntegrationEvent(UUID id, String name, Set<String> placeholders) {
-        eventBus.publish(
-                new TemplateCreated(
-                        id,
-                        name,
-                        placeholders,
-                        clock.instant()
-                )
-        );
-    }
-
-    private void persist(UUID id, UUID fileId, String name, Set<String> placeholders) {
-        templates.persist(
-                new PersistentTemplate(
-                        id,
-                        fileId,
-                        name,
-                        placeholders
-                )
-        );
-    }
-
-    private Set<String> placeholders(UUID id, UUID fileId) throws CouldNotFindPlaceholders {
+    private Set<String> placeholders(UUID fileId)
+            throws IOException, CouldNotFindFile, FileIsExpired, CouldNotProcessFile {
         try (var inputStream = files.inputStream(fileId)) {
             return templateEngine.placeholders(inputStream);
-        } catch (CouldNotFindFile | IOException e) {
-            throw new CouldNotFindPlaceholders(id, fileId, e);
-        }
-    }
-
-    private void setTimeToLive(UUID id, UUID fileId) throws CouldNotExtendTimeToLive {
-        try {
-            files.setTimeToLive(fileId, Instant.MAX);
-        } catch (CouldNotFindFile e) {
-            throw new CouldNotExtendTimeToLive(id, fileId, e);
         }
     }
 }

@@ -6,7 +6,12 @@ import com.github.maximtereshchenko.clerk.write.api.port.EventBus;
 import com.github.maximtereshchenko.clerk.write.api.port.Files;
 import com.github.maximtereshchenko.clerk.write.api.port.TemplateEngine;
 import com.github.maximtereshchenko.clerk.write.api.port.Templates;
+import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotFindFile;
+import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotProcessFile;
+import com.github.maximtereshchenko.clerk.write.api.port.exception.FileIdIsTaken;
+import com.github.maximtereshchenko.clerk.write.api.port.exception.FileIsExpired;
 
+import java.io.IOException;
 import java.time.Clock;
 import java.util.Map;
 import java.util.Objects;
@@ -22,20 +27,27 @@ public final class ClerkWriteFacade implements ClerkWriteModule {
         this.documentService = documentService;
     }
 
-
     @Override
     public void createTemplate(UUID id, UUID fileId, String name)
-            throws CouldNotExtendTimeToLive,
-            CouldNotFindPlaceholders,
+            throws IOException,
+            FileIsExpired,
             TemplateIsEmpty,
             NameIsRequired,
-            TemplateWithIdExists {
+            IdIsTaken,
+            CouldNotProcessFile,
+            CouldNotFindFile {
         templateService.createTemplate(id, fileId, name);
     }
 
     @Override
     public void createDocument(UUID id, UUID templateId, Map<String, String> values)
-            throws CouldNotFindTemplate, ValuesAreRequired {
+            throws IOException,
+            FileIsExpired,
+            ValuesAreRequired,
+            FileIdIsTaken,
+            CouldNotFindTemplate,
+            CouldNotFindFile,
+            CouldNotProcessFile {
         documentService.createDocument(id, templateId, values);
     }
 

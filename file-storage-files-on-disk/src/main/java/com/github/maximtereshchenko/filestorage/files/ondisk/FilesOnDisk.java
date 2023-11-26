@@ -5,7 +5,6 @@ import com.github.maximtereshchenko.filestorage.api.port.Files;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.Set;
 import java.util.UUID;
@@ -30,23 +29,17 @@ public final class FilesOnDisk implements Files {
     }
 
     @Override
-    public Set<UUID> findAll() {
+    public Set<UUID> findAll() throws IOException {
         try (var stream = java.nio.file.Files.list(directory)) {
             return stream.map(Path::getFileName)
                     .map(Path::toString)
                     .map(UUID::fromString)
                     .collect(Collectors.toSet());
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
     }
 
     @Override
-    public void remove(UUID id) {
-        try {
-            java.nio.file.Files.deleteIfExists(directory.resolve(id.toString()));
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+    public void remove(UUID id) throws IOException {
+        java.nio.file.Files.deleteIfExists(directory.resolve(id.toString()));
     }
 }

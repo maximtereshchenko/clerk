@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.Clock;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.UUID;
@@ -21,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ExtendWith({ClasspathFileExtension.class, PredictableUUIDExtension.class, ClerkWriteModuleExtension.class})
-final class CreateDocumentFromTemplateUseCaseTests extends UseCaseTest {
+final class CreateDocumentFromTemplateUseCaseTests {
 
     @Test
     void givenValuesAreMissing_whenCreateDocument_thenValuesAreRequiredThrown(
@@ -29,7 +30,9 @@ final class CreateDocumentFromTemplateUseCaseTests extends UseCaseTest {
             UUID templateId,
             ClerkWriteModule module
     ) {
-        assertThatThrownBy(() -> module.createDocument(documentId, templateId, Map.of()))
+        var values = Map.<String, String>of();
+
+        assertThatThrownBy(() -> module.createDocument(documentId, templateId, values))
                 .isInstanceOf(ValuesAreRequired.class)
                 .hasMessageContaining(documentId.toString());
     }
@@ -40,7 +43,9 @@ final class CreateDocumentFromTemplateUseCaseTests extends UseCaseTest {
             UUID templateId,
             ClerkWriteModule module
     ) {
-        assertThatThrownBy(() -> module.createDocument(documentId, templateId, Map.of("placeholder", "value")))
+        var values = Map.of("placeholder", "value");
+
+        assertThatThrownBy(() -> module.createDocument(documentId, templateId, values))
                 .isInstanceOf(CouldNotFindTemplate.class)
                 .hasMessageContaining(documentId.toString())
                 .hasMessageContaining(templateId.toString());
@@ -55,7 +60,7 @@ final class CreateDocumentFromTemplateUseCaseTests extends UseCaseTest {
             UUID documentId,
             ClerkWriteModule module
     ) throws Exception {
-        persistFile(files, fileId, template);
+        files.persist(fileId, Instant.MIN, java.nio.file.Files.readAllBytes(template));
         module.createTemplate(templateId, fileId, "name");
 
         module.createDocument(documentId, templateId, Map.of("placeholder", "value"));
@@ -76,7 +81,7 @@ final class CreateDocumentFromTemplateUseCaseTests extends UseCaseTest {
             Clock clock,
             ClerkWriteModule module
     ) throws Exception {
-        persistFile(files, fileId, template);
+        files.persist(fileId, Instant.MIN, java.nio.file.Files.readAllBytes(template));
         module.createTemplate(templateId, fileId, "name");
         eventBus.clear();
 

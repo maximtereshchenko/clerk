@@ -1,6 +1,7 @@
 package com.github.maximtereshchenko.clerk.write.templateengine.freemarker;
 
 import com.github.maximtereshchenko.clerk.write.api.port.TemplateEngine;
+import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotProcessFile;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -28,24 +29,26 @@ public final class TemplateEngineFreemarker implements TemplateEngine {
     }
 
     @Override
-    public Set<String> placeholders(InputStream inputStream) {
+    public Set<String> placeholders(InputStream inputStream) throws IOException, CouldNotProcessFile {
         try {
             var template = new Template("", new InputStreamReader(inputStream), configuration);
             var placeholders = new Placeholders();
             template.process(placeholders, Writer.nullWriter());
             return placeholders.collected();
-        } catch (IOException | TemplateException e) {
-            throw new CouldNotProcessTemplate(e);
+        } catch (TemplateException e) {
+            throw new CouldNotProcessFile(e);
         }
     }
 
     @Override
-    public void fill(InputStream inputStream, Map<String, String> values, OutputStream outputStream) {
+    public byte[] fill(InputStream inputStream, Map<String, String> values) throws IOException, CouldNotProcessFile {
         try {
             var template = new Template("", new InputStreamReader(inputStream), configuration);
+            var outputStream = new ByteArrayOutputStream();
             template.process(values, new OutputStreamWriter(outputStream));
-        } catch (IOException | TemplateException e) {
-            throw new CouldNotProcessTemplate(e);
+            return outputStream.toByteArray();
+        } catch (TemplateException e) {
+            throw new CouldNotProcessFile(e);
         }
     }
 }

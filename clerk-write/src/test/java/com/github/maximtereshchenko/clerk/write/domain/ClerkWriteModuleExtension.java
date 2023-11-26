@@ -31,7 +31,6 @@ final class ClerkWriteModuleExtension extends TestContextExtension {
         return new TestContext(
                 Map.of(
                         Files.class, files,
-                        FilesInMemory.class, files,
                         Templates.class, templates,
                         Clock.class, clock,
                         EventBusInMemory.class, eventBus,

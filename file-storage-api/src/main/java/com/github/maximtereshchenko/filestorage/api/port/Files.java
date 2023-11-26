@@ -12,7 +12,7 @@ public interface Files {
 
     InputStream inputStream(UUID id) throws IOException;
 
-    Set<UUID> findAll();
+    Set<UUID> findAll() throws IOException;
 
-    void remove(UUID id);
+    void remove(UUID id) throws IOException;
 }

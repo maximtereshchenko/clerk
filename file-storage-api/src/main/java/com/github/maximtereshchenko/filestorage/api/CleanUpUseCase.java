@@ -1,6 +1,8 @@
 package com.github.maximtereshchenko.filestorage.api;
 
+import java.io.IOException;
+
 public interface CleanUpUseCase {
 
-    void cleanUp();
+    void cleanUp() throws IOException;
 }

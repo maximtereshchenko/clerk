@@ -11,7 +11,6 @@ import com.github.maximtereshchenko.filestorage.api.port.Files;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UncheckedIOException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.UUID;
@@ -29,42 +28,32 @@ public final class FileStorageFacade implements FileStorageModule {
     }
 
     @Override
-    public void persistFile(UUID id, Instant timeToLive, InputStream inputStream) throws IdIsUsed {
+    public void persistFile(UUID id, Instant timeToLive, InputStream inputStream) throws IdIsUsed, IOException {
         if (fileLabels.exists(id)) {
             throw new IdIsUsed(id);
         }
         try (var outputStream = files.outputStream(id)) {
             inputStream.transferTo(outputStream);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
         fileLabels.persist(new FileLabel(id, timeToLive));
     }
 
     @Override
-    public void writeFile(UUID id, OutputStream outputStream) throws CouldNotFindFile, FileIsExpired {
-        var fileLabel = fileLabels.findById(id).orElseThrow(() -> new CouldNotFindFile(id));
-        if (fileLabel.timeToLive().isBefore(clock.instant())) {
-            throw new FileIsExpired(id, fileLabel.timeToLive());
-        }
+    public void writeFile(UUID id, OutputStream outputStream) throws CouldNotFindFile, FileIsExpired, IOException {
+        checkFileExpiration(id);
         try (var inputStream = files.inputStream(id)) {
             inputStream.transferTo(outputStream);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
     }
 
     @Override
     public void setTimeToLive(UUID id, Instant timeToLive) throws CouldNotFindFile, FileIsExpired {
-        var fileLabel = fileLabels.findById(id).orElseThrow(() -> new CouldNotFindFile(id));
-        if (fileLabel.timeToLive().isBefore(clock.instant())) {
-            throw new FileIsExpired(id, fileLabel.timeToLive());
-        }
-        fileLabels.update(new FileLabel(fileLabel.id(), timeToLive));
+        checkFileExpiration(id);
+        fileLabels.update(new FileLabel(id, timeToLive));
     }
 
     @Override
-    public void cleanUp() {
+    public void cleanUp() throws IOException {
         for (var id : files.findAll()) {
             if (shouldBeRemoved(id)) {
                 files.remove(id);
@@ -72,9 +61,20 @@ public final class FileStorageFacade implements FileStorageModule {
         }
     }
 
+    private void checkFileExpiration(UUID id) throws CouldNotFindFile, FileIsExpired {
+        var fileLabel = fileLabels.findById(id).orElseThrow(() -> new CouldNotFindFile(id));
+        if (isExpired(fileLabel)) {
+            throw new FileIsExpired(id, fileLabel.timeToLive());
+        }
+    }
+
+    private boolean isExpired(FileLabel fileLabel) {
+        return fileLabel.timeToLive().isBefore(clock.instant());
+    }
+
     private boolean shouldBeRemoved(UUID id) {
         return fileLabels.findById(id)
-                .map(fileLabel -> fileLabel.timeToLive().isBefore(clock.instant()))
+                .map(this::isExpired)
                 .orElse(Boolean.TRUE);
     }
 }

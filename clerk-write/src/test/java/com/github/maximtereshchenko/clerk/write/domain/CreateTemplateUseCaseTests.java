@@ -2,14 +2,12 @@ package com.github.maximtereshchenko.clerk.write.domain;
 
 import com.github.maximtereshchenko.clerk.event.TemplateCreated;
 import com.github.maximtereshchenko.clerk.write.api.ClerkWriteModule;
-import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotExtendTimeToLive;
+import com.github.maximtereshchenko.clerk.write.api.exception.IdIsTaken;
 import com.github.maximtereshchenko.clerk.write.api.exception.NameIsRequired;
 import com.github.maximtereshchenko.clerk.write.api.exception.TemplateIsEmpty;
-import com.github.maximtereshchenko.clerk.write.api.exception.TemplateWithIdExists;
 import com.github.maximtereshchenko.clerk.write.api.port.Files;
 import com.github.maximtereshchenko.clerk.write.api.port.PersistentTemplate;
 import com.github.maximtereshchenko.clerk.write.api.port.Templates;
-import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotFindFile;
 import com.github.maximtereshchenko.test.ClasspathFileExtension;
 import com.github.maximtereshchenko.test.PredictableUUIDExtension;
 import org.junit.jupiter.api.Test;
@@ -25,35 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ExtendWith({ClasspathFileExtension.class, PredictableUUIDExtension.class, ClerkWriteModuleExtension.class})
-final class CreateTemplateUseCaseTests extends UseCaseTest {
-
-    @Test
-    void givenFileExists_whenCreateTemplate_thenFileTimeToLiveExtended(
-            FilesInMemory files,
-            UUID fileId,
-            Path template,
-            UUID templateId,
-            ClerkWriteModule module
-    ) throws Exception {
-        persistFile(files, fileId, template);
-
-        module.createTemplate(templateId, fileId, "name");
-
-        assertThat(files.timeToLive(fileId)).isEqualTo(Instant.MAX);
-    }
-
-    @Test
-    void givenFileDoNotExist_whenCreateTemplate_thenCouldNotExtendTimeToLiveThrown(
-            UUID fileId,
-            UUID templateId,
-            ClerkWriteModule module
-    ) {
-        assertThatThrownBy(() -> module.createTemplate(templateId, fileId, "name"))
-                .isInstanceOf(CouldNotExtendTimeToLive.class)
-                .hasMessageContaining(templateId.toString())
-                .hasMessageContaining(fileId.toString())
-                .hasCauseInstanceOf(CouldNotFindFile.class);
-    }
+final class CreateTemplateUseCaseTests {
 
     @Test
     void givenFileContainsPlaceholders_whenCreateTemplate_thenTemplatePersisted(
@@ -64,7 +34,7 @@ final class CreateTemplateUseCaseTests extends UseCaseTest {
             Templates templates,
             ClerkWriteModule module
     ) throws Exception {
-        persistFile(files, fileId, template);
+        files.persist(fileId, Instant.MIN, java.nio.file.Files.readAllBytes(template));
 
         module.createTemplate(templateId, fileId, "name");
 
@@ -86,8 +56,8 @@ final class CreateTemplateUseCaseTests extends UseCaseTest {
             Path emptyTemplate,
             UUID templateId,
             ClerkWriteModule module
-    ) {
-        persistFile(files, fileId, emptyTemplate);
+    ) throws Exception {
+        files.persist(fileId, Instant.MIN, java.nio.file.Files.readAllBytes(emptyTemplate));
 
         assertThatThrownBy(() -> module.createTemplate(templateId, fileId, "name"))
                 .isInstanceOf(TemplateIsEmpty.class)
@@ -105,7 +75,7 @@ final class CreateTemplateUseCaseTests extends UseCaseTest {
             Clock clock,
             ClerkWriteModule module
     ) throws Exception {
-        persistFile(files, fileId, template);
+        files.persist(fileId, Instant.MIN, java.nio.file.Files.readAllBytes(template));
 
         module.createTemplate(templateId, fileId, "name");
 
@@ -132,18 +102,18 @@ final class CreateTemplateUseCaseTests extends UseCaseTest {
     }
 
     @Test
-    void givenTemplateExists_whenCreateTemplate_thenTemplateWithIdExistsThrown(
+    void givenTemplateExists_whenCreateTemplate_thenIdIsTakenThrown(
             Files files,
             UUID fileId,
             Path template,
             UUID templateId,
             ClerkWriteModule module
     ) throws Exception {
-        persistFile(files, fileId, template);
+        files.persist(fileId, Instant.MIN, java.nio.file.Files.readAllBytes(template));
         module.createTemplate(templateId, fileId, "name");
 
         assertThatThrownBy(() -> module.createTemplate(templateId, fileId, "different name"))
-                .isInstanceOf(TemplateWithIdExists.class)
+                .isInstanceOf(IdIsTaken.class)
                 .hasMessage(templateId.toString());
     }
 }

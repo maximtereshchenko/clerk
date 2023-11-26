@@ -33,7 +33,7 @@ final class PersistFileUseCaseTests extends UseCaseTest {
     }
 
     @Test
-    void givenIdIsUsed_whenPersistFile_thenIdIsUsedThrown(UUID id, FileStorageModule module) throws IdIsUsed {
+    void givenIdIsUsed_whenPersistFile_thenIdIsUsedThrown(UUID id, FileStorageModule module) throws Exception {
         module.persistFile(id, Instant.MAX, InputStream.nullInputStream());
         var inputStream = InputStream.nullInputStream();
 
