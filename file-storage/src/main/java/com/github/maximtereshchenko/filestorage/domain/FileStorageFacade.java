@@ -1,6 +1,7 @@
 package com.github.maximtereshchenko.filestorage.domain;
 
 import com.github.maximtereshchenko.filestorage.api.FileStorageModule;
+import com.github.maximtereshchenko.filestorage.api.exception.CouldNotFindFile;
 import com.github.maximtereshchenko.filestorage.api.exception.IdIsUsed;
 import com.github.maximtereshchenko.filestorage.api.port.FileLabel;
 import com.github.maximtereshchenko.filestorage.api.port.FileLabels;
@@ -37,7 +38,10 @@ public final class FileStorageFacade implements FileStorageModule {
     }
 
     @Override
-    public void writeFile(UUID id, OutputStream outputStream) {
+    public void writeFile(UUID id, OutputStream outputStream) throws CouldNotFindFile {
+        if (!fileLabels.exists(id)) {
+            throw new CouldNotFindFile(id);
+        }
         try (var inputStream = files.inputStream(id)) {
             inputStream.transferTo(outputStream);
         } catch (IOException e) {
