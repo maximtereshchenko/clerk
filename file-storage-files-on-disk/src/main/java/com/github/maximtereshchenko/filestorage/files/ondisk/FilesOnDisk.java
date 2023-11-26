@@ -31,9 +31,8 @@ public final class FilesOnDisk implements Files {
 
     @Override
     public Set<UUID> findAll() {
-        try (var stream = java.nio.file.Files.walk(directory, 0)) {
-            return stream.filter(java.nio.file.Files::isRegularFile)
-                    .map(Path::getFileName)
+        try (var stream = java.nio.file.Files.list(directory)) {
+            return stream.map(Path::getFileName)
                     .map(Path::toString)
                     .map(UUID::fromString)
                     .collect(Collectors.toSet());
@@ -44,6 +43,10 @@ public final class FilesOnDisk implements Files {
 
     @Override
     public void remove(UUID id) {
-
+        try {
+            java.nio.file.Files.deleteIfExists(directory.resolve(id.toString()));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 }
