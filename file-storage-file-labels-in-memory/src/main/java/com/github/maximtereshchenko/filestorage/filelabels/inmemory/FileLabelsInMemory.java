@@ -18,6 +18,11 @@ public final class FileLabelsInMemory implements FileLabels {
     }
 
     @Override
+    public synchronized void update(FileLabel fileLabel) {
+        persist(fileLabel);
+    }
+
+    @Override
     public synchronized boolean exists(UUID id) {
         return map.containsKey(id);
     }

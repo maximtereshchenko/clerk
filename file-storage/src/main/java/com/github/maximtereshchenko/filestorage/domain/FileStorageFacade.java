@@ -53,4 +53,28 @@ public final class FileStorageFacade implements FileStorageModule {
             throw new UncheckedIOException(e);
         }
     }
+
+    @Override
+    public void setTimeToLive(UUID id, Instant timeToLive) throws CouldNotFindFile, FileIsExpired {
+        var fileLabel = fileLabels.findById(id).orElseThrow(() -> new CouldNotFindFile(id));
+        if (fileLabel.timeToLive().isBefore(clock.instant())) {
+            throw new FileIsExpired(id, fileLabel.timeToLive());
+        }
+        fileLabels.update(new FileLabel(fileLabel.id(), timeToLive));
+    }
+
+    @Override
+    public void cleanUp() {
+        for (var id : files.findAll()) {
+            if (shouldBeRemoved(id)) {
+                files.remove(id);
+            }
+        }
+    }
+
+    private boolean shouldBeRemoved(UUID id) {
+        return fileLabels.findById(id)
+                .map(fileLabel -> fileLabel.timeToLive().isBefore(clock.instant()))
+                .orElse(Boolean.TRUE);
+    }
 }

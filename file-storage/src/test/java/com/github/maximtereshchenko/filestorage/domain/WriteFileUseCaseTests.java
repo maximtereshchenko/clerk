@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.OutputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.UUID;
@@ -17,7 +16,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ExtendWith({ClasspathFileExtension.class, PredictableUUIDExtension.class, FileStorageModuleExtension.class})
-final class WriteFileUseCaseTests {
+final class WriteFileUseCaseTests extends UseCaseTest {
 
     @Test
     void givenFileDoNotExist_whenWriteFile_thenCouldNotFindFileThrown(UUID id, FileStorageModule module) {
@@ -31,9 +30,7 @@ final class WriteFileUseCaseTests {
     @Test
     void givenExpiredFile_whenWriteFile_thenFileIsExpiredThrown(Path file, UUID id, FileStorageModule module)
             throws Exception {
-        try (var inputStream = Files.newInputStream(file)) {
-            module.persistFile(id, Instant.MIN, inputStream);
-        }
+        persistFile(module, id, Instant.MIN, file);
         var outputStream = OutputStream.nullOutputStream();
 
         assertThatThrownBy(() -> module.writeFile(id, outputStream))

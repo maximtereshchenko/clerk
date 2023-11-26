@@ -7,6 +7,8 @@ public interface FileLabels {
 
     void persist(FileLabel fileLabel);
 
+    void update(FileLabel fileLabel);
+
     boolean exists(UUID id);
 
     Optional<FileLabel> findById(UUID id);

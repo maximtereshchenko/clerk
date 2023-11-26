@@ -1,3 +1,3 @@
 package com.github.maximtereshchenko.filestorage.api;
 
-public interface FileStorageModule extends WriteFileUseCase, PersistFileUseCase {}
+public interface FileStorageModule extends WriteFileUseCase, PersistFileUseCase, SetTimeToLiveUseCase, CleanUpUseCase {}
