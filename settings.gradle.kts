@@ -1,7 +1,6 @@
 rootProject.name = "clerk"
 include("clerk-write-api")
 include("clerk-write")
-include("clerk-write-files-in-memory")
 include("clerk-write-templates-in-memory")
 include("clerk-write-template-engine-freemarker")
 include("clerk-read-api")
@@ -11,6 +10,10 @@ include("test-common")
 include("clerk-read-templates-in-memory")
 include("clerk-read-placeholders-in-memory")
 include("clerk-read-documents-in-memory")
+include("file-storage")
+include("file-storage-api")
+include("file-storage-files-on-disk")
+include("file-storage-file-labels-in-memory")
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {

@@ -5,6 +5,7 @@ import com.github.maximtereshchenko.clerk.write.api.ClerkWriteModule;
 import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotFindTemplate;
 import com.github.maximtereshchenko.clerk.write.api.exception.ValuesAreRequired;
 import com.github.maximtereshchenko.clerk.write.api.port.Files;
+import com.github.maximtereshchenko.test.ClasspathFileExtension;
 import com.github.maximtereshchenko.test.PredictableUUIDExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

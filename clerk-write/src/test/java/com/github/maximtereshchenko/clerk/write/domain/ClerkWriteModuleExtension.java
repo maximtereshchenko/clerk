@@ -4,7 +4,6 @@ import com.github.maximtereshchenko.clerk.write.api.ClerkWriteModule;
 import com.github.maximtereshchenko.clerk.write.api.port.Files;
 import com.github.maximtereshchenko.clerk.write.api.port.Templates;
 import com.github.maximtereshchenko.clerk.write.domain.ClerkWriteFacade.Builder;
-import com.github.maximtereshchenko.clerk.write.files.inmemory.FilesInMemory;
 import com.github.maximtereshchenko.clerk.write.templateengine.freemarker.TemplateEngineFreemarker;
 import com.github.maximtereshchenko.clerk.write.templates.inmemory.TemplatesInMemory;
 import com.github.maximtereshchenko.test.TestContext;
