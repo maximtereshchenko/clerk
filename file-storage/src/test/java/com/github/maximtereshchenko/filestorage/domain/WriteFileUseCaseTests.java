@@ -36,6 +36,6 @@ final class WriteFileUseCaseTests extends UseCaseTest {
         assertThatThrownBy(() -> module.writeFile(id, outputStream))
                 .isInstanceOf(FileIsExpired.class)
                 .hasMessageContaining(id.toString())
-                .hasMessageContaining(id.toString());
+                .hasMessageContaining(Instant.MIN.toString());
     }
 }
