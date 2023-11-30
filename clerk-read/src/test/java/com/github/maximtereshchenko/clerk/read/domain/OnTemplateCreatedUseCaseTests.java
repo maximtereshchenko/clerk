@@ -4,6 +4,7 @@ import com.github.maximtereshchenko.clerk.event.TemplateCreated;
 import com.github.maximtereshchenko.clerk.read.api.ClerkReadModule;
 import com.github.maximtereshchenko.clerk.read.api.PlaceholdersPresentation;
 import com.github.maximtereshchenko.clerk.read.api.TemplatePresentation;
+import com.github.maximtereshchenko.clerk.read.api.exception.TemplateBelongsToAnotherUser;
 import com.github.maximtereshchenko.test.PredictableUUIDExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,6 +14,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @ExtendWith({PredictableUUIDExtension.class, ClerkReadModuleExtension.class})
 final class OnTemplateCreatedUseCaseTests {
@@ -62,11 +64,26 @@ final class OnTemplateCreatedUseCaseTests {
             UUID id,
             UUID userId,
             ClerkReadModule module
-    ) {
+    ) throws Exception {
         module.onTemplateCreated(new TemplateCreated(id, userId, "name", Set.of("placeholder"), Instant.MIN));
 
         assertThat(module.placeholders(id, userId))
-                .isEqualTo(new PlaceholdersPresentation(id, Set.of("placeholder"), Instant.MIN));
+                .isEqualTo(new PlaceholdersPresentation(id, userId, Set.of("placeholder"), Instant.MIN));
+    }
+
+    @Test
+    void givenTemplateBelongsToAnotherUser_whenPlaceholders_thenThenTemplateBelongsToAnotherUserThrown(
+            UUID id,
+            UUID otherUserId,
+            UUID userId,
+            ClerkReadModule module
+    ) {
+        module.onTemplateCreated(new TemplateCreated(id, otherUserId, "name", Set.of("placeholder"), Instant.MIN));
+
+        assertThatThrownBy(() -> module.placeholders(id, userId))
+                .isInstanceOf(TemplateBelongsToAnotherUser.class)
+                .hasMessageContaining(id.toString())
+                .hasMessageContaining(otherUserId.toString());
     }
 
     @Test
@@ -74,11 +91,11 @@ final class OnTemplateCreatedUseCaseTests {
             UUID id,
             UUID userId,
             ClerkReadModule module
-    ) {
+    ) throws Exception {
         module.onTemplateCreated(new TemplateCreated(id, userId, "name", Set.of("placeholder"), Instant.MAX));
         module.onTemplateCreated(new TemplateCreated(id, userId, "name", Set.of("updated"), Instant.MIN));
 
         assertThat(module.placeholders(id, userId))
-                .isEqualTo(new PlaceholdersPresentation(id, Set.of("placeholder"), Instant.MAX));
+                .isEqualTo(new PlaceholdersPresentation(id, userId, Set.of("placeholder"), Instant.MAX));
     }
 }

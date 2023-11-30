@@ -6,6 +6,7 @@ import com.github.maximtereshchenko.clerk.read.api.ClerkReadModule;
 import com.github.maximtereshchenko.clerk.read.api.DocumentPresentation;
 import com.github.maximtereshchenko.clerk.read.api.PlaceholdersPresentation;
 import com.github.maximtereshchenko.clerk.read.api.TemplatePresentation;
+import com.github.maximtereshchenko.clerk.read.api.exception.TemplateBelongsToAnotherUser;
 import com.github.maximtereshchenko.clerk.read.api.port.Documents;
 import com.github.maximtereshchenko.clerk.read.api.port.Placeholders;
 import com.github.maximtereshchenko.clerk.read.api.port.Templates;
@@ -41,6 +42,7 @@ public final class ClerkReadFacade implements ClerkReadModule {
         placeholders.persist(
                 new PlaceholdersPresentation(
                         templateCreated.id(),
+                        templateCreated.userId(),
                         templateCreated.placeholders(),
                         templateCreated.timestamp()
                 )
@@ -53,8 +55,12 @@ public final class ClerkReadFacade implements ClerkReadModule {
     }
 
     @Override
-    public PlaceholdersPresentation placeholders(UUID id, UUID userId) {
-        return placeholders.findById(id).orElseThrow();
+    public PlaceholdersPresentation placeholders(UUID id, UUID userId) throws TemplateBelongsToAnotherUser {
+        var placeholdersPresentation = placeholders.findById(id).orElseThrow();
+        if (!placeholdersPresentation.userId().equals(userId)) {
+            throw new TemplateBelongsToAnotherUser(id, placeholdersPresentation.userId());
+        }
+        return placeholdersPresentation;
     }
 
     @Override

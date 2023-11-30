@@ -4,4 +4,4 @@ import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
 
-public record PlaceholdersPresentation(UUID id, Set<String> placeholders, Instant timestamp) {}
+public record PlaceholdersPresentation(UUID id, UUID userId, Set<String> placeholders, Instant timestamp) {}
