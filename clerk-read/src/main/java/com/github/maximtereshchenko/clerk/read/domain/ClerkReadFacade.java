@@ -31,7 +31,12 @@ public final class ClerkReadFacade implements ClerkReadModule {
             return;
         }
         templates.persist(
-                new TemplatePresentation(templateCreated.id(), templateCreated.name(), templateCreated.timestamp())
+                new TemplatePresentation(
+                        templateCreated.id(),
+                        templateCreated.userId(),
+                        templateCreated.name(),
+                        templateCreated.timestamp()
+                )
         );
         placeholders.persist(
                 new PlaceholdersPresentation(
@@ -44,7 +49,7 @@ public final class ClerkReadFacade implements ClerkReadModule {
 
     @Override
     public Collection<TemplatePresentation> templates(UUID userId) {
-        return templates.findAll();
+        return templates.findAllByUserId(userId);
     }
 
     @Override

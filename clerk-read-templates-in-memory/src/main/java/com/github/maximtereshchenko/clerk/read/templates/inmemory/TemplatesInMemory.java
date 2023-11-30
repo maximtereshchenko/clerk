@@ -15,8 +15,11 @@ public final class TemplatesInMemory implements Templates {
     }
 
     @Override
-    public synchronized Collection<TemplatePresentation> findAll() {
-        return List.copyOf(map.values());
+    public synchronized Collection<TemplatePresentation> findAllByUserId(UUID userId) {
+        return map.values()
+                .stream()
+                .filter(templatePresentation -> templatePresentation.userId().equals(userId))
+                .toList();
     }
 
     @Override

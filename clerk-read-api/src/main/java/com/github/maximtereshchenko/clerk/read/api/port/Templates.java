@@ -10,7 +10,7 @@ public interface Templates {
 
     void persist(TemplatePresentation templatePresentation);
 
-    Collection<TemplatePresentation> findAll();
+    Collection<TemplatePresentation> findAllByUserId(UUID userId);
 
     Optional<TemplatePresentation> findById(UUID id);
 }

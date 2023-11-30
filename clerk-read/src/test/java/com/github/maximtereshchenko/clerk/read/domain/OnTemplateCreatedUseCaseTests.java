@@ -26,7 +26,26 @@ final class OnTemplateCreatedUseCaseTests {
         module.onTemplateCreated(new TemplateCreated(id, userId, "name", Set.of("placeholder"), Instant.MIN));
 
         assertThat(module.templates(userId))
-                .containsExactly(new TemplatePresentation(id, "name", Instant.MIN));
+                .containsExactly(new TemplatePresentation(id, userId, "name", Instant.MIN));
+    }
+
+    @Test
+    void givenMultipleTemplates_whenTemplates_thenOnlyTemplatesWhichBelongToUserCanBeViewed(
+            UUID id,
+            UUID otherId,
+            UUID userId,
+            UUID otherUserId,
+            ClerkReadModule module
+    ) {
+        module.onTemplateCreated(new TemplateCreated(id, userId, "name", Set.of("placeholder"), Instant.MIN));
+        module.onTemplateCreated(
+                new TemplateCreated(otherId, otherUserId, "name", Set.of("placeholder"), Instant.MIN)
+        );
+
+        assertThat(module.templates(userId))
+                .containsExactly(new TemplatePresentation(id, userId, "name", Instant.MIN));
+        assertThat(module.templates(otherUserId))
+                .containsExactly(new TemplatePresentation(otherId, otherUserId, "name", Instant.MIN));
     }
 
     @Test
@@ -35,7 +54,7 @@ final class OnTemplateCreatedUseCaseTests {
         module.onTemplateCreated(new TemplateCreated(id, userId, "updated", Set.of("placeholder"), Instant.MIN));
 
         assertThat(module.templates(userId))
-                .containsExactly(new TemplatePresentation(id, "name", Instant.MAX));
+                .containsExactly(new TemplatePresentation(id, userId, "name", Instant.MAX));
     }
 
     @Test
