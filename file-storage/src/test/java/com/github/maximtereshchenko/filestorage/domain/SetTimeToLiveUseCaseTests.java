@@ -27,33 +27,42 @@ final class SetTimeToLiveUseCaseTests extends UseCaseTest {
     void givenFileExists_whenSetTimeToLive_thenFileIsNotCleaned(
             Path file,
             UUID id,
+            UUID userId,
             ManualClock clock,
             FileStorageModule module
     ) throws Exception {
-        persistFile(module, id, clock.instant().plus(30, ChronoUnit.MINUTES), file);
-        module.setTimeToLive(id, clock.instant().plus(90, ChronoUnit.MINUTES));
+        persistFile(module, id, userId, clock.instant().plus(30, ChronoUnit.MINUTES), file);
+        module.setTimeToLive(id, userId, clock.instant().plus(90, ChronoUnit.MINUTES));
         clock.waitOneHour();
         var outputStream = new ByteArrayOutputStream();
 
         module.cleanUp();
-        module.writeFile(id, outputStream);
+        module.writeFile(id, userId, outputStream);
 
         assertThat(outputStream.toString(StandardCharsets.UTF_8)).isEqualTo(Files.readString(file));
     }
 
     @Test
-    void givenFileDoNotExist_whenSetTimeToLive_thenCouldNotFindFileThrown(UUID id, FileStorageModule module) {
-        assertThatThrownBy(() -> module.setTimeToLive(id, Instant.MAX))
+    void givenFileDoNotExist_whenSetTimeToLive_thenCouldNotFindFileThrown(
+            UUID id,
+            UUID userId,
+            FileStorageModule module
+    ) {
+        assertThatThrownBy(() -> module.setTimeToLive(id, userId, Instant.MAX))
                 .isInstanceOf(CouldNotFindFile.class)
                 .hasMessageContaining(id.toString());
     }
 
     @Test
-    void givenExpiredFile_whenSetTimeToLive_thenFileIsExpiredThrown(Path file, UUID id, FileStorageModule module)
-            throws Exception {
-        persistFile(module, id, Instant.MIN, file);
+    void givenExpiredFile_whenSetTimeToLive_thenFileIsExpiredThrown(
+            Path file,
+            UUID id,
+            UUID userId,
+            FileStorageModule module
+    ) throws Exception {
+        persistFile(module, id, userId, Instant.MIN, file);
 
-        assertThatThrownBy(() -> module.setTimeToLive(id, Instant.MAX))
+        assertThatThrownBy(() -> module.setTimeToLive(id, userId, Instant.MAX))
                 .isInstanceOf(FileIsExpired.class)
                 .hasMessageContaining(id.toString())
                 .hasMessageContaining(Instant.MIN.toString());

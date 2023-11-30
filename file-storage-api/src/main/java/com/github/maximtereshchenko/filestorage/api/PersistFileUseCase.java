@@ -9,5 +9,5 @@ import java.util.UUID;
 
 public interface PersistFileUseCase {
 
-    void persistFile(UUID id, Instant timeToLive, InputStream inputStream) throws IdIsUsed, IOException;
+    void persistFile(UUID id, UUID userId, Instant timeToLive, InputStream inputStream) throws IdIsUsed, IOException;
 }

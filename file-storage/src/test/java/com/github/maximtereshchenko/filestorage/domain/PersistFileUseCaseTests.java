@@ -22,22 +22,23 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 final class PersistFileUseCaseTests extends UseCaseTest {
 
     @Test
-    void givenFile_whenPersistFile_thenFileCanBeDownloaded(Path file, UUID id, FileStorageModule module)
+    void givenFile_whenPersistFile_thenFileCanBeDownloaded(Path file, UUID id, UUID userId, FileStorageModule module)
             throws Exception {
-        persistFile(module, id, Instant.MAX, file);
+        persistFile(module, id, userId, file);
         var outputStream = new ByteArrayOutputStream();
 
-        module.writeFile(id, outputStream);
+        module.writeFile(id, userId, outputStream);
 
         assertThat(outputStream.toString(StandardCharsets.UTF_8)).isEqualTo(Files.readString(file));
     }
 
     @Test
-    void givenIdIsUsed_whenPersistFile_thenIdIsUsedThrown(UUID id, FileStorageModule module) throws Exception {
-        module.persistFile(id, Instant.MAX, InputStream.nullInputStream());
+    void givenIdIsUsed_whenPersistFile_thenIdIsUsedThrown(Path file, UUID id, UUID userId, FileStorageModule module)
+            throws Exception {
+        persistFile(module, id, userId, file);
         var inputStream = InputStream.nullInputStream();
 
-        assertThatThrownBy(() -> module.persistFile(id, Instant.MAX, inputStream))
+        assertThatThrownBy(() -> module.persistFile(id, userId, Instant.MAX, inputStream))
                 .isInstanceOf(IdIsUsed.class)
                 .hasMessageContaining(id.toString());
     }

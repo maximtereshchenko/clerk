@@ -34,9 +34,14 @@ final class CleanUpUseCaseTests extends UseCaseTest {
     }
 
     @Test
-    void givenExpiredFile_whenCleanUp_thenFileIsCleaned(UUID id, Path file, Files files, FileStorageModule module)
-            throws Exception {
-        persistFile(module, id, Instant.MIN, file);
+    void givenExpiredFile_whenCleanUp_thenFileIsCleaned(
+            UUID id,
+            UUID userId,
+            Path file,
+            Files files,
+            FileStorageModule module
+    ) throws Exception {
+        persistFile(module, id, userId, Instant.MIN, file);
 
         module.cleanUp();
 

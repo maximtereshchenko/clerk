@@ -8,5 +8,5 @@ import java.util.UUID;
 
 public interface SetTimeToLiveUseCase {
 
-    void setTimeToLive(UUID id, Instant timeToLive) throws CouldNotFindFile, FileIsExpired;
+    void setTimeToLive(UUID id, UUID userId, Instant timeToLive) throws CouldNotFindFile, FileIsExpired;
 }

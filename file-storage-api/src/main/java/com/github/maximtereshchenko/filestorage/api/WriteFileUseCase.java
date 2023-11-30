@@ -9,5 +9,5 @@ import java.util.UUID;
 
 public interface WriteFileUseCase {
 
-    void writeFile(UUID id, OutputStream outputStream) throws CouldNotFindFile, FileIsExpired, IOException;
+    void writeFile(UUID id, UUID userId, OutputStream outputStream) throws CouldNotFindFile, FileIsExpired, IOException;
 }

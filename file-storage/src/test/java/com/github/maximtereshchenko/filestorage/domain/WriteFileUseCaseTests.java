@@ -19,21 +19,21 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 final class WriteFileUseCaseTests extends UseCaseTest {
 
     @Test
-    void givenFileDoNotExist_whenWriteFile_thenCouldNotFindFileThrown(UUID id, FileStorageModule module) {
+    void givenFileDoNotExist_whenWriteFile_thenCouldNotFindFileThrown(UUID id, UUID userId, FileStorageModule module) {
         var outputStream = OutputStream.nullOutputStream();
 
-        assertThatThrownBy(() -> module.writeFile(id, outputStream))
+        assertThatThrownBy(() -> module.writeFile(id, userId, outputStream))
                 .isInstanceOf(CouldNotFindFile.class)
                 .hasMessageContaining(id.toString());
     }
 
     @Test
-    void givenExpiredFile_whenWriteFile_thenFileIsExpiredThrown(Path file, UUID id, FileStorageModule module)
+    void givenExpiredFile_whenWriteFile_thenFileIsExpiredThrown(Path file, UUID id, UUID userId, FileStorageModule module)
             throws Exception {
-        persistFile(module, id, Instant.MIN, file);
+        persistFile(module, id, userId, Instant.MIN, file);
         var outputStream = OutputStream.nullOutputStream();
 
-        assertThatThrownBy(() -> module.writeFile(id, outputStream))
+        assertThatThrownBy(() -> module.writeFile(id, userId, outputStream))
                 .isInstanceOf(FileIsExpired.class)
                 .hasMessageContaining(id.toString())
                 .hasMessageContaining(Instant.MIN.toString());

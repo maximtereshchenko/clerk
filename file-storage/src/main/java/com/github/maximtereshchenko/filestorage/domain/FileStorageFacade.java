@@ -28,7 +28,7 @@ public final class FileStorageFacade implements FileStorageModule {
     }
 
     @Override
-    public void persistFile(UUID id, Instant timeToLive, InputStream inputStream) throws IdIsUsed, IOException {
+    public void persistFile(UUID id, UUID userId, Instant timeToLive, InputStream inputStream) throws IdIsUsed, IOException {
         if (fileLabels.exists(id)) {
             throw new IdIsUsed(id);
         }
@@ -39,7 +39,7 @@ public final class FileStorageFacade implements FileStorageModule {
     }
 
     @Override
-    public void writeFile(UUID id, OutputStream outputStream) throws CouldNotFindFile, FileIsExpired, IOException {
+    public void writeFile(UUID id, UUID userId, OutputStream outputStream) throws CouldNotFindFile, FileIsExpired, IOException {
         checkFileExpiration(id);
         try (var inputStream = files.inputStream(id)) {
             inputStream.transferTo(outputStream);
@@ -47,7 +47,7 @@ public final class FileStorageFacade implements FileStorageModule {
     }
 
     @Override
-    public void setTimeToLive(UUID id, Instant timeToLive) throws CouldNotFindFile, FileIsExpired {
+    public void setTimeToLive(UUID id, UUID userId, Instant timeToLive) throws CouldNotFindFile, FileIsExpired {
         checkFileExpiration(id);
         fileLabels.update(new FileLabel(id, timeToLive));
     }
