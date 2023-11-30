@@ -3,6 +3,7 @@ package com.github.maximtereshchenko.clerk.write.domain;
 import com.github.maximtereshchenko.clerk.event.DocumentCreated;
 import com.github.maximtereshchenko.clerk.write.api.CreateDocumentFromTemplateUseCase;
 import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotFindTemplate;
+import com.github.maximtereshchenko.clerk.write.api.exception.TemplateBelongsToAnotherUser;
 import com.github.maximtereshchenko.clerk.write.api.exception.ValuesAreRequired;
 import com.github.maximtereshchenko.clerk.write.api.port.EventBus;
 import com.github.maximtereshchenko.clerk.write.api.port.Files;
@@ -43,13 +44,14 @@ final class DocumentService implements CreateDocumentFromTemplateUseCase {
             CouldNotFindTemplate,
             FileIsExpired,
             CouldNotFindFile,
-            CouldNotProcessFile {
+            CouldNotProcessFile,
+            TemplateBelongsToAnotherUser {
         if (values.isEmpty()) {
             throw new ValuesAreRequired(id);
         }
         var instant = clock.instant();
         var timeToLive = instant.plus(1, ChronoUnit.DAYS);
-        files.persist(id, userId, timeToLive, document(templateFileId(id, templateId), userId, values));
+        files.persist(id, userId, timeToLive, document(templateFileId(id, templateId, userId), userId, values));
         eventBus.publish(new DocumentCreated(id, userId, timeToLive, instant));
     }
 
@@ -60,9 +62,13 @@ final class DocumentService implements CreateDocumentFromTemplateUseCase {
         }
     }
 
-    private UUID templateFileId(UUID documentId, UUID templateId) throws CouldNotFindTemplate {
-        return templates.findById(templateId)
-                .orElseThrow(() -> new CouldNotFindTemplate(documentId, templateId))
-                .fileId();
+    private UUID templateFileId(UUID documentId, UUID templateId, UUID userId)
+            throws CouldNotFindTemplate, TemplateBelongsToAnotherUser {
+        var persistentTemplate = templates.findById(templateId)
+                .orElseThrow(() -> new CouldNotFindTemplate(documentId, templateId));
+        if (!persistentTemplate.userId().equals(userId)) {
+            throw new TemplateBelongsToAnotherUser(templateId, persistentTemplate.userId());
+        }
+        return persistentTemplate.fileId();
     }
 }

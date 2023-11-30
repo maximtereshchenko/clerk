@@ -3,6 +3,7 @@ package com.github.maximtereshchenko.clerk.write.domain;
 import com.github.maximtereshchenko.clerk.event.DocumentCreated;
 import com.github.maximtereshchenko.clerk.write.api.ClerkWriteModule;
 import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotFindTemplate;
+import com.github.maximtereshchenko.clerk.write.api.exception.TemplateBelongsToAnotherUser;
 import com.github.maximtereshchenko.clerk.write.api.exception.ValuesAreRequired;
 import com.github.maximtereshchenko.clerk.write.api.port.Files;
 import com.github.maximtereshchenko.test.ClasspathFileExtension;
@@ -100,5 +101,26 @@ final class CreateDocumentFromTemplateUseCaseTests {
                                 clock.instant()
                         )
                 );
+    }
+
+    @Test
+    void givenTemplateBelongsToAnotherUser_whenCreateDocument_thenDocumentCreatedEventPublished(
+            Files files,
+            UUID fileId,
+            UUID otherUserId,
+            UUID userId,
+            Path template,
+            UUID templateId,
+            UUID documentId,
+            ClerkWriteModule module
+    ) throws Exception {
+        files.persist(fileId, otherUserId, Instant.MIN, java.nio.file.Files.readAllBytes(template));
+        module.createTemplate(templateId, otherUserId, fileId, "name");
+        var values = Map.of("placeholder", "value");
+
+        assertThatThrownBy(() -> module.createDocument(documentId, userId, templateId, values))
+                .isInstanceOf(TemplateBelongsToAnotherUser.class)
+                .hasMessageContaining(templateId.toString())
+                .hasMessageContaining(otherUserId.toString());
     }
 }

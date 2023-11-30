@@ -1,6 +1,7 @@
 package com.github.maximtereshchenko.clerk.write.api;
 
 import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotFindTemplate;
+import com.github.maximtereshchenko.clerk.write.api.exception.TemplateBelongsToAnotherUser;
 import com.github.maximtereshchenko.clerk.write.api.exception.ValuesAreRequired;
 import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotFindFile;
 import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotProcessFile;
@@ -20,5 +21,6 @@ public interface CreateDocumentFromTemplateUseCase {
             CouldNotFindTemplate,
             FileIsExpired,
             CouldNotFindFile,
-            CouldNotProcessFile;
+            CouldNotProcessFile,
+            TemplateBelongsToAnotherUser;
 }

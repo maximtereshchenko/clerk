@@ -45,7 +45,8 @@ public final class ClerkWriteFacade implements ClerkWriteModule {
             FileIdIsTaken,
             CouldNotFindTemplate,
             CouldNotFindFile,
-            CouldNotProcessFile {
+            CouldNotProcessFile,
+            TemplateBelongsToAnotherUser {
         documentService.createDocument(id, userId, templateId, values);
     }
 
