@@ -33,7 +33,7 @@ final class TemplateService implements CreateTemplateUseCase {
     }
 
     @Override
-    public void createTemplate(UUID id, UUID fileId, String name)
+    public void createTemplate(UUID id, UUID userId, UUID fileId, String name)
             throws IOException,
             NameIsRequired,
             IdIsTaken,
@@ -47,18 +47,18 @@ final class TemplateService implements CreateTemplateUseCase {
         if (templates.exists(id)) {
             throw new IdIsTaken(id);
         }
-        files.setTimeToLive(fileId, Instant.MAX);
-        var placeholders = placeholders(fileId);
+        files.setTimeToLive(fileId, userId, Instant.MAX);
+        var placeholders = placeholders(fileId, userId);
         if (placeholders.isEmpty()) {
             throw new TemplateIsEmpty(id, fileId);
         }
-        templates.persist(new PersistentTemplate(id, fileId, name, placeholders));
-        eventBus.publish(new TemplateCreated(id, name, placeholders, clock.instant()));
+        templates.persist(new PersistentTemplate(id, userId, fileId, name, placeholders));
+        eventBus.publish(new TemplateCreated(id, userId, name, placeholders, clock.instant()));
     }
 
-    private Set<String> placeholders(UUID fileId)
+    private Set<String> placeholders(UUID fileId, UUID userId)
             throws IOException, CouldNotFindFile, FileIsExpired, CouldNotProcessFile {
-        try (var inputStream = files.inputStream(fileId)) {
+        try (var inputStream = files.inputStream(fileId, userId)) {
             return templateEngine.placeholders(inputStream);
         }
     }

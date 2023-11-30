@@ -29,19 +29,21 @@ final class CreateTemplateUseCaseTests {
     void givenFileContainsPlaceholders_whenCreateTemplate_thenTemplatePersisted(
             Files files,
             UUID fileId,
+            UUID userId,
             Path template,
             UUID templateId,
             Templates templates,
             ClerkWriteModule module
     ) throws Exception {
-        files.persist(fileId, Instant.MIN, java.nio.file.Files.readAllBytes(template));
+        files.persist(fileId, userId, Instant.MIN, java.nio.file.Files.readAllBytes(template));
 
-        module.createTemplate(templateId, fileId, "name");
+        module.createTemplate(templateId, userId, fileId, "name");
 
         assertThat(templates.findById(templateId))
                 .contains(
                         new PersistentTemplate(
                                 templateId,
+                                userId,
                                 fileId,
                                 "name",
                                 Set.of("placeholder")
@@ -53,13 +55,14 @@ final class CreateTemplateUseCaseTests {
     void givenTemplateIsEmpty_whenCreateTemplate_thenTemplateIsEmptyThrown(
             Files files,
             UUID fileId,
+            UUID userId,
             Path emptyTemplate,
             UUID templateId,
             ClerkWriteModule module
     ) throws Exception {
-        files.persist(fileId, Instant.MIN, java.nio.file.Files.readAllBytes(emptyTemplate));
+        files.persist(fileId, userId, Instant.MIN, java.nio.file.Files.readAllBytes(emptyTemplate));
 
-        assertThatThrownBy(() -> module.createTemplate(templateId, fileId, "name"))
+        assertThatThrownBy(() -> module.createTemplate(templateId, userId, fileId, "name"))
                 .isInstanceOf(TemplateIsEmpty.class)
                 .hasMessageContaining(templateId.toString())
                 .hasMessageContaining(fileId.toString());
@@ -69,20 +72,22 @@ final class CreateTemplateUseCaseTests {
     void givenTemplateIsCreated_whenCreateTemplate_thenTemplateCreatedEventPublished(
             Files files,
             UUID fileId,
+            UUID userId,
             Path template,
             UUID templateId,
             EventBusInMemory eventBus,
             Clock clock,
             ClerkWriteModule module
     ) throws Exception {
-        files.persist(fileId, Instant.MIN, java.nio.file.Files.readAllBytes(template));
+        files.persist(fileId, userId, Instant.MIN, java.nio.file.Files.readAllBytes(template));
 
-        module.createTemplate(templateId, fileId, "name");
+        module.createTemplate(templateId, userId, fileId, "name");
 
         assertThat(eventBus.published())
                 .containsExactly(
                         new TemplateCreated(
                                 templateId,
+                                userId,
                                 "name",
                                 Set.of("placeholder"),
                                 clock.instant()
@@ -93,10 +98,11 @@ final class CreateTemplateUseCaseTests {
     @Test
     void givenNameIsMissing_whenCreateTemplate_thenNameIsRequiredThrown(
             UUID templateId,
+            UUID userId,
             UUID fileId,
             ClerkWriteModule module
     ) {
-        assertThatThrownBy(() -> module.createTemplate(templateId, fileId, ""))
+        assertThatThrownBy(() -> module.createTemplate(templateId, userId, fileId, ""))
                 .isInstanceOf(NameIsRequired.class)
                 .hasMessage(templateId.toString());
     }
@@ -105,14 +111,15 @@ final class CreateTemplateUseCaseTests {
     void givenTemplateExists_whenCreateTemplate_thenIdIsTakenThrown(
             Files files,
             UUID fileId,
+            UUID userId,
             Path template,
             UUID templateId,
             ClerkWriteModule module
     ) throws Exception {
-        files.persist(fileId, Instant.MIN, java.nio.file.Files.readAllBytes(template));
-        module.createTemplate(templateId, fileId, "name");
+        files.persist(fileId, userId, Instant.MIN, java.nio.file.Files.readAllBytes(template));
+        module.createTemplate(templateId, userId, fileId, "name");
 
-        assertThatThrownBy(() -> module.createTemplate(templateId, fileId, "different name"))
+        assertThatThrownBy(() -> module.createTemplate(templateId, userId, fileId, "different name"))
                 .isInstanceOf(IdIsTaken.class)
                 .hasMessage(templateId.toString());
     }

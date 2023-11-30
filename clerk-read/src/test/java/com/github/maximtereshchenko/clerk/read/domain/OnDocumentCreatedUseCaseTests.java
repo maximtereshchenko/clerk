@@ -16,16 +16,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 final class OnDocumentCreatedUseCaseTests {
 
     @Test
-    void givenDocumentCreatedEvent_whenOnDocumentCreated_thenDocumentCanBeViewed(UUID fileId, ClerkReadModule module) {
-        module.onDocumentCreated(new DocumentCreated(fileId, Instant.MAX, Instant.MIN));
+    void givenDocumentCreatedEvent_whenOnDocumentCreated_thenDocumentCanBeViewed(UUID fileId, UUID userId, ClerkReadModule module) {
+        module.onDocumentCreated(new DocumentCreated(fileId, userId, Instant.MAX, Instant.MIN));
 
         assertThat(module.documents()).containsExactly(new DocumentPresentation(fileId, Instant.MAX, Instant.MIN));
     }
 
     @Test
-    void givenOldEvent_whenOnDocumentCreated_thenDocumentISNotChanged(UUID fileId, ClerkReadModule module) {
-        module.onDocumentCreated(new DocumentCreated(fileId, Instant.MAX, Instant.MAX));
-        module.onDocumentCreated(new DocumentCreated(fileId, Instant.MIN, Instant.MIN));
+    void givenOldEvent_whenOnDocumentCreated_thenDocumentISNotChanged(UUID fileId, UUID userId, ClerkReadModule module) {
+        module.onDocumentCreated(new DocumentCreated(fileId, userId, Instant.MAX, Instant.MAX));
+        module.onDocumentCreated(new DocumentCreated(fileId, userId, Instant.MIN, Instant.MIN));
 
         assertThat(module.documents()).containsExactly(new DocumentPresentation(fileId, Instant.MAX, Instant.MAX));
     }

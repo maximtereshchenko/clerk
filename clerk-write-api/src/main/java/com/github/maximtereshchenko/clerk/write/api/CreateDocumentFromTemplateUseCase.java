@@ -13,5 +13,12 @@ import java.util.UUID;
 
 public interface CreateDocumentFromTemplateUseCase {
 
-    void createDocument(UUID id, UUID templateId, Map<String, String> values) throws IOException, ValuesAreRequired, FileIdIsTaken, CouldNotFindTemplate, FileIsExpired, CouldNotFindFile, CouldNotProcessFile;
+    void createDocument(UUID id, UUID userId, UUID templateId, Map<String, String> values)
+            throws IOException,
+            ValuesAreRequired,
+            FileIdIsTaken,
+            CouldNotFindTemplate,
+            FileIsExpired,
+            CouldNotFindFile,
+            CouldNotProcessFile;
 }

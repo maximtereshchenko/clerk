@@ -12,5 +12,12 @@ import java.util.UUID;
 
 public interface CreateTemplateUseCase {
 
-    void createTemplate(UUID id, UUID fileId, String name) throws IOException, NameIsRequired, IdIsTaken, FileIsExpired, CouldNotFindFile, TemplateIsEmpty, CouldNotProcessFile;
+    void createTemplate(UUID id, UUID userId, UUID fileId, String name)
+            throws IOException,
+            NameIsRequired,
+            IdIsTaken,
+            FileIsExpired,
+            CouldNotFindFile,
+            TemplateIsEmpty,
+            CouldNotProcessFile;
 }

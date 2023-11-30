@@ -18,32 +18,32 @@ import static org.assertj.core.api.Assertions.assertThat;
 final class OnTemplateCreatedUseCaseTests {
 
     @Test
-    void givenTemplatedCreatedEvent_whenOnTemplateCreated_thenTemplateCanBeViewed(UUID id, ClerkReadModule module) {
-        module.onTemplateCreated(new TemplateCreated(id, "name", Set.of("placeholder"), Instant.MIN));
+    void givenTemplatedCreatedEvent_whenOnTemplateCreated_thenTemplateCanBeViewed(UUID id, UUID userId, ClerkReadModule module) {
+        module.onTemplateCreated(new TemplateCreated(id, userId, "name", Set.of("placeholder"), Instant.MIN));
 
         assertThat(module.templates()).containsExactly(new TemplatePresentation(id, "name", Instant.MIN));
     }
 
     @Test
-    void givenOldEvent_whenOnTemplateCreated_thenTemplateIsNotChanged(UUID id, ClerkReadModule module) {
-        module.onTemplateCreated(new TemplateCreated(id, "name", Set.of("placeholder"), Instant.MAX));
-        module.onTemplateCreated(new TemplateCreated(id, "updated", Set.of("placeholder"), Instant.MIN));
+    void givenOldEvent_whenOnTemplateCreated_thenTemplateIsNotChanged(UUID id, UUID userId, ClerkReadModule module) {
+        module.onTemplateCreated(new TemplateCreated(id, userId, "name", Set.of("placeholder"), Instant.MAX));
+        module.onTemplateCreated(new TemplateCreated(id, userId, "updated", Set.of("placeholder"), Instant.MIN));
 
         assertThat(module.templates()).containsExactly(new TemplatePresentation(id, "name", Instant.MAX));
     }
 
     @Test
-    void givenTemplatedCreatedEvent_whenOnTemplateCreated_thenPlaceholdersCanBeViewed(UUID id, ClerkReadModule module) {
-        module.onTemplateCreated(new TemplateCreated(id, "name", Set.of("placeholder"), Instant.MIN));
+    void givenTemplatedCreatedEvent_whenOnTemplateCreated_thenPlaceholdersCanBeViewed(UUID id, UUID userId, ClerkReadModule module) {
+        module.onTemplateCreated(new TemplateCreated(id, userId, "name", Set.of("placeholder"), Instant.MIN));
 
         assertThat(module.placeholders(id))
                 .isEqualTo(new PlaceholdersPresentation(id, Set.of("placeholder"), Instant.MIN));
     }
 
     @Test
-    void givenOldEvent_whenOnTemplateCreated_thenPlaceholdersAreNotChanged(UUID id, ClerkReadModule module) {
-        module.onTemplateCreated(new TemplateCreated(id, "name", Set.of("placeholder"), Instant.MAX));
-        module.onTemplateCreated(new TemplateCreated(id, "name", Set.of("updated"), Instant.MIN));
+    void givenOldEvent_whenOnTemplateCreated_thenPlaceholdersAreNotChanged(UUID id, UUID userId, ClerkReadModule module) {
+        module.onTemplateCreated(new TemplateCreated(id, userId, "name", Set.of("placeholder"), Instant.MAX));
+        module.onTemplateCreated(new TemplateCreated(id, userId, "name", Set.of("updated"), Instant.MIN));
 
         assertThat(module.placeholders(id))
                 .isEqualTo(new PlaceholdersPresentation(id, Set.of("placeholder"), Instant.MAX));

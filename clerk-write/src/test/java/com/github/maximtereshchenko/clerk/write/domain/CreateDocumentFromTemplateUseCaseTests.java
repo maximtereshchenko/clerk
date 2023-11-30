@@ -27,12 +27,13 @@ final class CreateDocumentFromTemplateUseCaseTests {
     @Test
     void givenValuesAreMissing_whenCreateDocument_thenValuesAreRequiredThrown(
             UUID documentId,
+            UUID userId,
             UUID templateId,
             ClerkWriteModule module
     ) {
         var values = Map.<String, String>of();
 
-        assertThatThrownBy(() -> module.createDocument(documentId, templateId, values))
+        assertThatThrownBy(() -> module.createDocument(documentId, userId, templateId, values))
                 .isInstanceOf(ValuesAreRequired.class)
                 .hasMessageContaining(documentId.toString());
     }
@@ -40,12 +41,13 @@ final class CreateDocumentFromTemplateUseCaseTests {
     @Test
     void givenTemplateDoNotExist_whenCreateDocument_thenCouldNotFindTemplateThrown(
             UUID documentId,
+            UUID userId,
             UUID templateId,
             ClerkWriteModule module
     ) {
         var values = Map.of("placeholder", "value");
 
-        assertThatThrownBy(() -> module.createDocument(documentId, templateId, values))
+        assertThatThrownBy(() -> module.createDocument(documentId, userId, templateId, values))
                 .isInstanceOf(CouldNotFindTemplate.class)
                 .hasMessageContaining(documentId.toString())
                 .hasMessageContaining(templateId.toString());
@@ -55,17 +57,18 @@ final class CreateDocumentFromTemplateUseCaseTests {
     void givenTemplateExists_whenCreateDocument_thenDocumentIsPersisted(
             Files files,
             UUID fileId,
+            UUID userId,
             Path template,
             UUID templateId,
             UUID documentId,
             ClerkWriteModule module
     ) throws Exception {
-        files.persist(fileId, Instant.MIN, java.nio.file.Files.readAllBytes(template));
-        module.createTemplate(templateId, fileId, "name");
+        files.persist(fileId, userId, Instant.MIN, java.nio.file.Files.readAllBytes(template));
+        module.createTemplate(templateId, userId, fileId, "name");
 
-        module.createDocument(documentId, templateId, Map.of("placeholder", "value"));
+        module.createDocument(documentId, userId, templateId, Map.of("placeholder", "value"));
 
-        assertThat(files.inputStream(documentId))
+        assertThat(files.inputStream(documentId, userId))
                 .asString(StandardCharsets.UTF_8)
                 .isEqualToIgnoringNewLines("value");
     }
@@ -74,6 +77,7 @@ final class CreateDocumentFromTemplateUseCaseTests {
     void givenDocumentCreated_whenCreateDocument_thenDocumentCreatedEventPublished(
             Files files,
             UUID fileId,
+            UUID userId,
             Path template,
             UUID templateId,
             UUID documentId,
@@ -81,16 +85,17 @@ final class CreateDocumentFromTemplateUseCaseTests {
             Clock clock,
             ClerkWriteModule module
     ) throws Exception {
-        files.persist(fileId, Instant.MIN, java.nio.file.Files.readAllBytes(template));
-        module.createTemplate(templateId, fileId, "name");
+        files.persist(fileId, userId, Instant.MIN, java.nio.file.Files.readAllBytes(template));
+        module.createTemplate(templateId, userId, fileId, "name");
         eventBus.clear();
 
-        module.createDocument(documentId, templateId, Map.of("placeholder", "value"));
+        module.createDocument(documentId, userId, templateId, Map.of("placeholder", "value"));
 
         assertThat(eventBus.published())
                 .containsExactly(
                         new DocumentCreated(
                                 documentId,
+                                userId,
                                 clock.instant().plus(1, ChronoUnit.DAYS),
                                 clock.instant()
                         )

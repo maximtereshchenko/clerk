@@ -5,6 +5,7 @@ import java.util.UUID;
 
 public record PersistentTemplate(
         UUID id,
+        UUID userId,
         UUID fileId,
         String name,
         Set<String> placeholders

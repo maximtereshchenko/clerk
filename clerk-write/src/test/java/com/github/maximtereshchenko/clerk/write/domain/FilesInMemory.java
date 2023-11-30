@@ -14,17 +14,17 @@ final class FilesInMemory implements Files {
     private final Map<UUID, FileDetails> fileDetails = new HashMap<>();
 
     @Override
-    public synchronized void setTimeToLive(UUID id, Instant timeToLive) {
+    public synchronized void setTimeToLive(UUID id, UUID userId, Instant timeToLive) {
         fileDetails.put(id, fileDetails.get(id).withTimeToLive(timeToLive));
     }
 
     @Override
-    public synchronized InputStream inputStream(UUID id) {
+    public synchronized InputStream inputStream(UUID id, UUID userId) {
         return new ByteArrayInputStream(fileDetails.get(id).content());
     }
 
     @Override
-    public synchronized void persist(UUID id, Instant timeToLive, byte[] bytes) {
+    public synchronized void persist(UUID id, UUID userId, Instant timeToLive, byte[] bytes) {
         fileDetails.put(id, new FileDetails(bytes, timeToLive));
     }
 

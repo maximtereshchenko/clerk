@@ -28,7 +28,7 @@ public final class ClerkWriteFacade implements ClerkWriteModule {
     }
 
     @Override
-    public void createTemplate(UUID id, UUID fileId, String name)
+    public void createTemplate(UUID id, UUID userId, UUID fileId, String name)
             throws IOException,
             FileIsExpired,
             TemplateIsEmpty,
@@ -36,11 +36,11 @@ public final class ClerkWriteFacade implements ClerkWriteModule {
             IdIsTaken,
             CouldNotProcessFile,
             CouldNotFindFile {
-        templateService.createTemplate(id, fileId, name);
+        templateService.createTemplate(id, userId, fileId, name);
     }
 
     @Override
-    public void createDocument(UUID id, UUID templateId, Map<String, String> values)
+    public void createDocument(UUID id, UUID userId, UUID templateId, Map<String, String> values)
             throws IOException,
             FileIsExpired,
             ValuesAreRequired,
@@ -48,7 +48,7 @@ public final class ClerkWriteFacade implements ClerkWriteModule {
             CouldNotFindTemplate,
             CouldNotFindFile,
             CouldNotProcessFile {
-        documentService.createDocument(id, templateId, values);
+        documentService.createDocument(id, userId, templateId, values);
     }
 
     public static final class Builder {

@@ -36,7 +36,7 @@ final class DocumentService implements CreateDocumentFromTemplateUseCase {
     }
 
     @Override
-    public void createDocument(UUID id, UUID templateId, Map<String, String> values)
+    public void createDocument(UUID id, UUID userId, UUID templateId, Map<String, String> values)
             throws IOException,
             ValuesAreRequired,
             FileIdIsTaken,
@@ -49,13 +49,13 @@ final class DocumentService implements CreateDocumentFromTemplateUseCase {
         }
         var instant = clock.instant();
         var timeToLive = instant.plus(1, ChronoUnit.DAYS);
-        files.persist(id, timeToLive, document(templateFileId(id, templateId), values));
-        eventBus.publish(new DocumentCreated(id, timeToLive, instant));
+        files.persist(id, userId, timeToLive, document(templateFileId(id, templateId), userId, values));
+        eventBus.publish(new DocumentCreated(id, userId, timeToLive, instant));
     }
 
-    private byte[] document(UUID fileId, Map<String, String> values)
+    private byte[] document(UUID fileId, UUID userId, Map<String, String> values)
             throws IOException, FileIsExpired, CouldNotFindFile, CouldNotProcessFile {
-        try (var inputStream = files.inputStream(fileId)) {
+        try (var inputStream = files.inputStream(fileId, userId)) {
             return templateEngine.fill(inputStream, values);
         }
     }

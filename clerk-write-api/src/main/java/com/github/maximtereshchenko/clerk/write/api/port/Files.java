@@ -11,9 +11,9 @@ import java.util.UUID;
 
 public interface Files {
 
-    void setTimeToLive(UUID id, Instant timeToLive) throws CouldNotFindFile, FileIsExpired;
+    void setTimeToLive(UUID id, UUID userId, Instant timeToLive) throws CouldNotFindFile, FileIsExpired;
 
-    InputStream inputStream(UUID id) throws IOException, CouldNotFindFile, FileIsExpired;
+    InputStream inputStream(UUID id, UUID userId) throws IOException, CouldNotFindFile, FileIsExpired;
 
-    void persist(UUID id, Instant timeToLive, byte[] bytes) throws IOException, FileIdIsTaken;
+    void persist(UUID id, UUID userId, Instant timeToLive, byte[] bytes) throws IOException, FileIdIsTaken;
 }
