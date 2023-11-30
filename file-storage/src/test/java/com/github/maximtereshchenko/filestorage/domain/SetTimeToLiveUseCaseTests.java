@@ -2,6 +2,7 @@ package com.github.maximtereshchenko.filestorage.domain;
 
 import com.github.maximtereshchenko.filestorage.api.FileStorageModule;
 import com.github.maximtereshchenko.filestorage.api.exception.CouldNotFindFile;
+import com.github.maximtereshchenko.filestorage.api.exception.FileBelongsToAnotherUser;
 import com.github.maximtereshchenko.filestorage.api.exception.FileIsExpired;
 import com.github.maximtereshchenko.test.ClasspathFileExtension;
 import com.github.maximtereshchenko.test.ManualClock;
@@ -66,5 +67,21 @@ final class SetTimeToLiveUseCaseTests extends UseCaseTest {
                 .isInstanceOf(FileIsExpired.class)
                 .hasMessageContaining(id.toString())
                 .hasMessageContaining(Instant.MIN.toString());
+    }
+
+    @Test
+    void givenFileBelongsToAnotherUser_whenSetTimeToLive_thenFileBelongsToAnotherUserThrown(
+            Path file,
+            UUID id,
+            UUID otherUserId,
+            UUID userId,
+            FileStorageModule module
+    ) throws Exception {
+        persistFile(module, id, otherUserId, file);
+
+        assertThatThrownBy(() -> module.setTimeToLive(id, userId, Instant.MAX))
+                .isInstanceOf(FileBelongsToAnotherUser.class)
+                .hasMessageContaining(id.toString())
+                .hasMessageContaining(otherUserId.toString());
     }
 }
