@@ -6,6 +6,7 @@ import com.github.maximtereshchenko.clerk.read.api.ClerkReadModule;
 import com.github.maximtereshchenko.clerk.read.api.DocumentPresentation;
 import com.github.maximtereshchenko.clerk.read.api.PlaceholdersPresentation;
 import com.github.maximtereshchenko.clerk.read.api.TemplatePresentation;
+import com.github.maximtereshchenko.clerk.read.api.exception.CouldNotFindTemplate;
 import com.github.maximtereshchenko.clerk.read.api.exception.TemplateBelongsToAnotherUser;
 import com.github.maximtereshchenko.clerk.read.api.port.Documents;
 import com.github.maximtereshchenko.clerk.read.api.port.Placeholders;
@@ -55,12 +56,13 @@ public final class ClerkReadFacade implements ClerkReadModule {
     }
 
     @Override
-    public PlaceholdersPresentation placeholders(UUID id, UUID userId) throws TemplateBelongsToAnotherUser {
-        var placeholdersPresentation = placeholders.findById(id).orElseThrow();
-        if (!placeholdersPresentation.userId().equals(userId)) {
-            throw new TemplateBelongsToAnotherUser(id, placeholdersPresentation.userId());
+    public PlaceholdersPresentation placeholders(UUID id, UUID userId)
+            throws TemplateBelongsToAnotherUser, CouldNotFindTemplate {
+        var found = this.placeholders.findById(id).orElseThrow(() -> new CouldNotFindTemplate(id));
+        if (!found.userId().equals(userId)) {
+            throw new TemplateBelongsToAnotherUser(id, found.userId());
         }
-        return placeholdersPresentation;
+        return found;
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.github.maximtereshchenko.clerk.event.TemplateCreated;
 import com.github.maximtereshchenko.clerk.read.api.ClerkReadModule;
 import com.github.maximtereshchenko.clerk.read.api.PlaceholdersPresentation;
 import com.github.maximtereshchenko.clerk.read.api.TemplatePresentation;
+import com.github.maximtereshchenko.clerk.read.api.exception.CouldNotFindTemplate;
 import com.github.maximtereshchenko.clerk.read.api.exception.TemplateBelongsToAnotherUser;
 import com.github.maximtereshchenko.test.PredictableUUIDExtension;
 import org.junit.jupiter.api.Test;
@@ -84,6 +85,17 @@ final class OnTemplateCreatedUseCaseTests {
                 .isInstanceOf(TemplateBelongsToAnotherUser.class)
                 .hasMessageContaining(id.toString())
                 .hasMessageContaining(otherUserId.toString());
+    }
+
+    @Test
+    void givenTemplateDoNotExists_whenPlaceholders_thenCouldNotFindTemplateThrown(
+            UUID id,
+            UUID userId,
+            ClerkReadModule module
+    ) {
+        assertThatThrownBy(() -> module.placeholders(id, userId))
+                .isInstanceOf(CouldNotFindTemplate.class)
+                .hasMessage(id.toString());
     }
 
     @Test
