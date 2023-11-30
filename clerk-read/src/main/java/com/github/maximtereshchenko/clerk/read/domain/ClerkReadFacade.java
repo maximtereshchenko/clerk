@@ -43,12 +43,12 @@ public final class ClerkReadFacade implements ClerkReadModule {
     }
 
     @Override
-    public Collection<TemplatePresentation> templates() {
+    public Collection<TemplatePresentation> templates(UUID userId) {
         return templates.findAll();
     }
 
     @Override
-    public PlaceholdersPresentation placeholders(UUID id) {
+    public PlaceholdersPresentation placeholders(UUID id, UUID userId) {
         return placeholders.findById(id).orElseThrow();
     }
 
@@ -67,7 +67,7 @@ public final class ClerkReadFacade implements ClerkReadModule {
     }
 
     @Override
-    public Collection<DocumentPresentation> documents() {
+    public Collection<DocumentPresentation> documents(UUID userId) {
         return documents.findAll();
     }
 

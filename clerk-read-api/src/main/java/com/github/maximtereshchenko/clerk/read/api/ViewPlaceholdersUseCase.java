@@ -4,5 +4,5 @@ import java.util.UUID;
 
 public interface ViewPlaceholdersUseCase {
 
-    PlaceholdersPresentation placeholders(UUID id);
+    PlaceholdersPresentation placeholders(UUID id, UUID userId);
 }
