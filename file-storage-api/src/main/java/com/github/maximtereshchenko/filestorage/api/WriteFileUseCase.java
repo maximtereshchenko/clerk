@@ -10,5 +10,6 @@ import java.util.UUID;
 
 public interface WriteFileUseCase {
 
-    void writeFile(UUID id, UUID userId, OutputStream outputStream) throws CouldNotFindFile, FileIsExpired, IOException, FileBelongsToAnotherUser;
+    void writeFile(UUID id, UUID userId, OutputStream outputStream)
+            throws CouldNotFindFile, FileIsExpired, IOException, FileBelongsToAnotherUser;
 }
