@@ -8,6 +8,7 @@ import com.github.maximtereshchenko.clerk.write.api.exception.TemplateIsEmpty;
 import com.github.maximtereshchenko.clerk.write.api.port.Files;
 import com.github.maximtereshchenko.clerk.write.api.port.PersistentTemplate;
 import com.github.maximtereshchenko.clerk.write.api.port.Templates;
+import com.github.maximtereshchenko.clerk.write.api.port.exception.FileBelongsToAnotherUser;
 import com.github.maximtereshchenko.test.ClasspathFileExtension;
 import com.github.maximtereshchenko.test.PredictableUUIDExtension;
 import org.junit.jupiter.api.Test;
@@ -122,5 +123,23 @@ final class CreateTemplateUseCaseTests {
         assertThatThrownBy(() -> module.createTemplate(templateId, userId, fileId, "different name"))
                 .isInstanceOf(IdIsTaken.class)
                 .hasMessage(templateId.toString());
+    }
+
+    @Test
+    void givenFileBelongsToAnotherUser_whenCreateTemplate_thenFileBelongsToAnotherUserThrown(
+            Files files,
+            UUID fileId,
+            UUID otherUserId,
+            UUID userId,
+            Path template,
+            UUID templateId,
+            ClerkWriteModule module
+    ) throws Exception {
+        files.persist(fileId, otherUserId, Instant.MIN, java.nio.file.Files.readAllBytes(template));
+
+        assertThatThrownBy(() -> module.createTemplate(templateId, userId, fileId, "name"))
+                .isInstanceOf(FileBelongsToAnotherUser.class)
+                .hasMessageContaining(fileId.toString())
+                .hasMessageContaining(otherUserId.toString());
     }
 }

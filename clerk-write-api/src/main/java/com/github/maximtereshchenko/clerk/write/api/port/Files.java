@@ -1,6 +1,7 @@
 package com.github.maximtereshchenko.clerk.write.api.port;
 
 import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotFindFile;
+import com.github.maximtereshchenko.clerk.write.api.port.exception.FileBelongsToAnotherUser;
 import com.github.maximtereshchenko.clerk.write.api.port.exception.FileIdIsTaken;
 import com.github.maximtereshchenko.clerk.write.api.port.exception.FileIsExpired;
 
@@ -11,7 +12,8 @@ import java.util.UUID;
 
 public interface Files {
 
-    void setTimeToLive(UUID id, UUID userId, Instant timeToLive) throws CouldNotFindFile, FileIsExpired;
+    void setTimeToLive(UUID id, UUID userId, Instant timeToLive)
+            throws CouldNotFindFile, FileIsExpired, FileBelongsToAnotherUser;
 
     InputStream inputStream(UUID id, UUID userId) throws IOException, CouldNotFindFile, FileIsExpired;
 

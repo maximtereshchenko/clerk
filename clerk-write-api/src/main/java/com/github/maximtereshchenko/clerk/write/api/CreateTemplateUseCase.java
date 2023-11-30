@@ -5,6 +5,7 @@ import com.github.maximtereshchenko.clerk.write.api.exception.NameIsRequired;
 import com.github.maximtereshchenko.clerk.write.api.exception.TemplateIsEmpty;
 import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotFindFile;
 import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotProcessFile;
+import com.github.maximtereshchenko.clerk.write.api.port.exception.FileBelongsToAnotherUser;
 import com.github.maximtereshchenko.clerk.write.api.port.exception.FileIsExpired;
 
 import java.io.IOException;
@@ -19,5 +20,6 @@ public interface CreateTemplateUseCase {
             FileIsExpired,
             CouldNotFindFile,
             TemplateIsEmpty,
-            CouldNotProcessFile;
+            CouldNotProcessFile,
+            FileBelongsToAnotherUser;
 }

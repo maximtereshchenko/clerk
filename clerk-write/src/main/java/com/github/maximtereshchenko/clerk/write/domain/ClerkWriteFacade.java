@@ -6,10 +6,7 @@ import com.github.maximtereshchenko.clerk.write.api.port.EventBus;
 import com.github.maximtereshchenko.clerk.write.api.port.Files;
 import com.github.maximtereshchenko.clerk.write.api.port.TemplateEngine;
 import com.github.maximtereshchenko.clerk.write.api.port.Templates;
-import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotFindFile;
-import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotProcessFile;
-import com.github.maximtereshchenko.clerk.write.api.port.exception.FileIdIsTaken;
-import com.github.maximtereshchenko.clerk.write.api.port.exception.FileIsExpired;
+import com.github.maximtereshchenko.clerk.write.api.port.exception.*;
 
 import java.io.IOException;
 import java.time.Clock;
@@ -35,7 +32,8 @@ public final class ClerkWriteFacade implements ClerkWriteModule {
             NameIsRequired,
             IdIsTaken,
             CouldNotProcessFile,
-            CouldNotFindFile {
+            CouldNotFindFile,
+            FileBelongsToAnotherUser {
         templateService.createTemplate(id, userId, fileId, name);
     }
 

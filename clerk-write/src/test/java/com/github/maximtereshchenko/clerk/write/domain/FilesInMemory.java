@@ -1,6 +1,7 @@
 package com.github.maximtereshchenko.clerk.write.domain;
 
 import com.github.maximtereshchenko.clerk.write.api.port.Files;
+import com.github.maximtereshchenko.clerk.write.api.port.exception.FileBelongsToAnotherUser;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -14,8 +15,12 @@ final class FilesInMemory implements Files {
     private final Map<UUID, FileDetails> fileDetails = new HashMap<>();
 
     @Override
-    public synchronized void setTimeToLive(UUID id, UUID userId, Instant timeToLive) {
-        fileDetails.put(id, fileDetails.get(id).withTimeToLive(timeToLive));
+    public synchronized void setTimeToLive(UUID id, UUID userId, Instant timeToLive) throws FileBelongsToAnotherUser {
+        var details = fileDetails.get(id);
+        if (!details.belongsTo(userId)) {
+            throw new FileBelongsToAnotherUser(id, details.ownerId());
+        }
+        fileDetails.put(id, details.withTimeToLive(timeToLive));
     }
 
     @Override
@@ -25,21 +30,23 @@ final class FilesInMemory implements Files {
 
     @Override
     public synchronized void persist(UUID id, UUID userId, Instant timeToLive, byte[] bytes) {
-        fileDetails.put(id, new FileDetails(bytes, timeToLive));
+        fileDetails.put(id, new FileDetails(userId, bytes, timeToLive));
     }
 
     private static final class FileDetails {
 
+        private final UUID ownerId;
         private final byte[] content;
         private final Instant timeToLive;
 
-        FileDetails(byte[] content, Instant timeToLive) {
+        FileDetails(UUID ownerId, byte[] content, Instant timeToLive) {
+            this.ownerId = ownerId;
             this.content = content;
             this.timeToLive = timeToLive;
         }
 
         FileDetails withTimeToLive(Instant timeToLive) {
-            return new FileDetails(content, timeToLive);
+            return new FileDetails(ownerId, content, timeToLive);
         }
 
         byte[] content() {
@@ -48,6 +55,14 @@ final class FilesInMemory implements Files {
 
         Instant timeToLive() {
             return timeToLive;
+        }
+
+        boolean belongsTo(UUID userId) {
+            return ownerId.equals(userId);
+        }
+
+        UUID ownerId() {
+            return ownerId;
         }
     }
 }
