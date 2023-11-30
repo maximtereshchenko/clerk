@@ -15,8 +15,11 @@ public final class DocumentsInMemory implements Documents {
     }
 
     @Override
-    public synchronized Collection<DocumentPresentation> findAll() {
-        return List.copyOf(map.values());
+    public synchronized Collection<DocumentPresentation> findAllByUserId(UUID userId) {
+        return map.values()
+                .stream()
+                .filter(documentPresentation -> documentPresentation.userId().equals(userId))
+                .toList();
     }
 
     @Override

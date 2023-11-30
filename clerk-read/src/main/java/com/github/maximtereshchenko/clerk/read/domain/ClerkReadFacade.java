@@ -60,6 +60,7 @@ public final class ClerkReadFacade implements ClerkReadModule {
         documents.persist(
                 new DocumentPresentation(
                         documentCreated.fileId(),
+                        documentCreated.userId(),
                         documentCreated.timeToLive(),
                         documentCreated.timestamp()
                 )
@@ -68,7 +69,7 @@ public final class ClerkReadFacade implements ClerkReadModule {
 
     @Override
     public Collection<DocumentPresentation> documents(UUID userId) {
-        return documents.findAll();
+        return documents.findAllByUserId(userId);
     }
 
     private boolean isOld(DocumentCreated documentCreated) {

@@ -24,7 +24,24 @@ final class OnDocumentCreatedUseCaseTests {
         module.onDocumentCreated(new DocumentCreated(fileId, userId, Instant.MAX, Instant.MIN));
 
         assertThat(module.documents(userId))
-                .containsExactly(new DocumentPresentation(fileId, Instant.MAX, Instant.MIN));
+                .containsExactly(new DocumentPresentation(fileId, userId, Instant.MAX, Instant.MIN));
+    }
+
+    @Test
+    void givenMultipleDocuments_whenDocuments_thenOnlyDocumentsWhichBelongToUserCanBeViewed(
+            UUID fileId,
+            UUID otherFileId,
+            UUID userId,
+            UUID otherUserId,
+            ClerkReadModule module
+    ) {
+        module.onDocumentCreated(new DocumentCreated(fileId, userId, Instant.MAX, Instant.MIN));
+        module.onDocumentCreated(new DocumentCreated(otherFileId, otherUserId, Instant.MAX, Instant.MIN));
+
+        assertThat(module.documents(userId))
+                .containsExactly(new DocumentPresentation(fileId, userId, Instant.MAX, Instant.MIN));
+        assertThat(module.documents(otherUserId))
+                .containsExactly(new DocumentPresentation(otherFileId, otherUserId, Instant.MAX, Instant.MIN));
     }
 
     @Test
@@ -36,6 +53,7 @@ final class OnDocumentCreatedUseCaseTests {
         module.onDocumentCreated(new DocumentCreated(fileId, userId, Instant.MAX, Instant.MAX));
         module.onDocumentCreated(new DocumentCreated(fileId, userId, Instant.MIN, Instant.MIN));
 
-        assertThat(module.documents(userId)).containsExactly(new DocumentPresentation(fileId, Instant.MAX, Instant.MAX));
+        assertThat(module.documents(userId))
+                .containsExactly(new DocumentPresentation(fileId, userId, Instant.MAX, Instant.MAX));
     }
 }

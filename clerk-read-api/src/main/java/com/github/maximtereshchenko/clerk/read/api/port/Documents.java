@@ -10,7 +10,7 @@ public interface Documents {
 
     void persist(DocumentPresentation documentPresentation);
 
-    Collection<DocumentPresentation> findAll();
+    Collection<DocumentPresentation> findAllByUserId(UUID userId);
 
     Optional<DocumentPresentation> findByFileId(UUID fileId);
 }
