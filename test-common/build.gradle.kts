@@ -3,5 +3,5 @@ plugins {
 }
 
 dependencies {
-    testFixturesImplementation(libs.junit)
+    testFixturesImplementation(libs.junit.jupiter)
 }

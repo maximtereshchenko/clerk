@@ -9,14 +9,14 @@ dependencies {
     testImplementation(project(":clerk-read-placeholders-in-memory"))
     testImplementation(project(":clerk-read-documents-in-memory"))
     testImplementation(testFixtures(project(":test-common")))
-    testImplementation(libs.junit)
+    testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj)
 }
 
 testing {
     suites {
         val test by getting(JvmTestSuite::class) {
-            useJUnitJupiter(libs.versions.junit)
+            useJUnitJupiter()
         }
     }
 }

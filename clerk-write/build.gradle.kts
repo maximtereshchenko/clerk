@@ -8,7 +8,7 @@ dependencies {
     testImplementation(project(":clerk-write-templates-in-memory"))
     testImplementation(project(":clerk-write-template-engine-freemarker"))
     testImplementation(testFixtures(project(":test-common")))
-    testImplementation(libs.junit)
+    testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj)
 }
 
@@ -21,7 +21,7 @@ tasks {
 testing {
     suites {
         val test by getting(JvmTestSuite::class) {
-            useJUnitJupiter(libs.versions.junit)
+            useJUnitJupiter()
         }
     }
 }

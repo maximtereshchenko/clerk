@@ -1,0 +1,28 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/templates",
+    "queryParameters": {
+      "userId": {
+        "anything": ""
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": [
+      {
+        "id": "{{request.query.userId}}",
+        "userId": "{{request.query.userId}}",
+        "name": "name",
+        "timestamp": "2020-01-01T00:00:00Z"
+      }
+    ],
+    "transformers": [
+      "response-template"
+    ]
+  }
+}

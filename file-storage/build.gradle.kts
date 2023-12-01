@@ -8,7 +8,7 @@ dependencies {
     testImplementation(testFixtures(project(":test-common")))
     testImplementation(project(":file-storage-files-on-disk"))
     testImplementation(project(":file-storage-file-labels-in-memory"))
-    testImplementation(libs.junit)
+    testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj)
 }
 
@@ -21,7 +21,7 @@ tasks {
 testing {
     suites {
         val test by getting(JvmTestSuite::class) {
-            useJUnitJupiter(libs.versions.junit)
+            useJUnitJupiter()
         }
     }
 }
