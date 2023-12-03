@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,6 +41,26 @@ final class IntegrationTests {
                                 .id(userId)
                                 .userId(userId)
                                 .name("name")
+                                .timestamp(Instant.parse("2020-01-01T00:00:00Z"))
+                );
+    }
+
+    @Test
+    void givenAuthorizedUser_whenViewPlaceholders_thenPlaceholdersRetrieved(String token, UUID userId) {
+        var response = restTemplate.exchange(
+                "/templates/00000000-0000-0000-0000-000000000001/placeholders",
+                HttpMethod.GET,
+                authorization(token),
+                ClerkReadGatewayPlaceholders.class
+        );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody())
+                .isEqualTo(
+                        new ClerkReadGatewayPlaceholders()
+                                .id(UUID.fromString("00000000-0000-0000-0000-000000000001"))
+                                .userId(userId)
+                                .placeholders(List.of("key"))
                                 .timestamp(Instant.parse("2020-01-01T00:00:00Z"))
                 );
     }

@@ -1,0 +1,33 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathTemplate": "/templates/{templateId}/placeholders",
+    "pathParameters": {
+      "templateId": {
+        "anything": ""
+      }
+    },
+    "queryParameters": {
+      "userId": {
+        "anything": ""
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "id": "{{request.path.templateId}}",
+      "userId": "{{request.query.userId}}",
+      "placeholders": [
+        "key"
+      ],
+      "timestamp": "2020-01-01T00:00:00Z"
+    },
+    "transformers": [
+      "response-template"
+    ]
+  }
+}

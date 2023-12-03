@@ -8,4 +8,6 @@ import java.util.List;
 interface Translator {
 
     List<ClerkReadGatewayTemplate> map(List<ClerkReadTemplate> templates);
+
+    ClerkReadGatewayPlaceholders map(ClerkReadPlaceholders placeholders);
 }

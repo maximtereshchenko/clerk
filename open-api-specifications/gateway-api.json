@@ -27,6 +27,37 @@
           }
         }
       }
+    },
+    "/templates/{templateId}/placeholders": {
+      "get": {
+        "tags": [
+          "clerk read gateway"
+        ],
+        "operationId": "placeholders",
+        "parameters": [
+          {
+            "name": "templateId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Placeholders",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/clerkReadGatewayPlaceholders"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -49,7 +80,42 @@
             "type": "string",
             "format": "date-time"
           }
-        }
+        },
+        "required": [
+          "id",
+          "userId",
+          "name",
+          "timestamp"
+        ]
+      },
+      "clerkReadGatewayPlaceholders": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "placeholders": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "placeholders",
+          "timestamp"
+        ]
       }
     }
   }
