@@ -65,6 +65,27 @@ final class IntegrationTests {
                 );
     }
 
+    @Test
+    void givenAuthorizedUser_whenViewDocuments_thenDocumentsRetrieved(String token, UUID userId) {
+        var response = restTemplate.exchange(
+                "/documents",
+                HttpMethod.GET,
+                authorization(token),
+                new ParameterizedTypeReference<Collection<ClerkReadGatewayDocument>>() {}
+        );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        var instant = Instant.parse("2020-01-01T00:00:00Z");
+        assertThat(response.getBody())
+                .containsExactly(
+                        new ClerkReadGatewayDocument()
+                                .fileId(userId)
+                                .userId(userId)
+                                .timeToLive(instant)
+                                .timestamp(instant)
+                );
+    }
+
     private <T> HttpEntity<T> authorization(String token) {
         var httpHeaders = new HttpHeaders();
         httpHeaders.setBearerAuth(token);

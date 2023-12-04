@@ -7,7 +7,9 @@ import java.util.List;
 @Mapper
 interface Translator {
 
-    List<ClerkReadGatewayTemplate> map(List<ClerkReadTemplate> templates);
+    List<ClerkReadGatewayTemplate> mapTemplates(List<ClerkReadTemplate> templates);
 
     ClerkReadGatewayPlaceholders map(ClerkReadPlaceholders placeholders);
+
+    List<ClerkReadGatewayDocument> mapDocuments(List<ClerkReadDocument> documents);
 }

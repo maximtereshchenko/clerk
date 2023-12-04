@@ -20,6 +20,16 @@ class ClerkReadController implements ClerkReadGatewayApi {
     }
 
     @Override
+    public ResponseEntity<List<ClerkReadGatewayDocument>> documents() {
+        return ResponseEntity.ok(
+                translator.mapDocuments(
+                        clerkReadClient.documents(userId())
+                                .getBody()
+                )
+        );
+    }
+
+    @Override
     public ResponseEntity<ClerkReadGatewayPlaceholders> placeholders(UUID templateId) {
         return ResponseEntity.ok(
                 translator.map(
@@ -32,7 +42,7 @@ class ClerkReadController implements ClerkReadGatewayApi {
     @Override
     public ResponseEntity<List<ClerkReadGatewayTemplate>> templates() {
         return ResponseEntity.ok(
-                translator.map(
+                translator.mapTemplates(
                         clerkReadClient.templates(userId())
                                 .getBody()
                 )

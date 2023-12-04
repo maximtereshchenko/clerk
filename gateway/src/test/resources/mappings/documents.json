@@ -1,0 +1,28 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/documents",
+    "queryParameters": {
+      "userId": {
+        "anything": ""
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": [
+      {
+        "fileId": "{{request.query.userId}}",
+        "userId": "{{request.query.userId}}",
+        "timeToLive": "2020-01-01T00:00:00Z",
+        "timestamp": "2020-01-01T00:00:00Z"
+      }
+    ],
+    "transformers": [
+      "response-template"
+    ]
+  }
+}

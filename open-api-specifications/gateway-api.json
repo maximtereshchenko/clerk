@@ -58,6 +58,29 @@
           }
         }
       }
+    },
+    "/documents": {
+      "get": {
+        "tags": [
+          "clerk read gateway"
+        ],
+        "operationId": "documents",
+        "responses": {
+          "default": {
+            "description": "Documents",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/clerkReadGatewayDocument"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -114,6 +137,33 @@
           "id",
           "userId",
           "placeholders",
+          "timestamp"
+        ]
+      },
+      "clerkReadGatewayDocument": {
+        "type": "object",
+        "properties": {
+          "fileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "timeToLive": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "fileId",
+          "userId",
+          "timeToLive",
           "timestamp"
         ]
       }

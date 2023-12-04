@@ -78,6 +78,40 @@
           }
         }
       }
+    },
+    "/documents": {
+      "get": {
+        "tags": [
+          "clerk read"
+        ],
+        "operationId": "documents",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "Documents",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/clerkReadDocument"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -134,6 +168,33 @@
           "id",
           "userId",
           "placeholders",
+          "timestamp"
+        ]
+      },
+      "clerkReadDocument": {
+        "type": "object",
+        "properties": {
+          "fileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "timeToLive": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "fileId",
+          "userId",
+          "timeToLive",
           "timestamp"
         ]
       }

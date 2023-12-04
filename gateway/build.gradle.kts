@@ -30,7 +30,6 @@ Paths.get("${project.parent?.layout?.projectDirectory}")
     .resolve("open-api-specifications")
     .listDirectoryEntries()
     .forEach {
-        println(it)
         val task = tasks.register<GenerateTask>(it.fileName.toString()) {
             generatorName = "spring"
             inputSpec = it.toString()
