@@ -23,7 +23,7 @@
           }
         ],
         "responses": {
-          "default": {
+          "200": {
             "description": "Templates",
             "content": {
               "application/json": {
@@ -35,6 +35,9 @@
                 }
               }
             }
+          },
+          "default": {
+            "description": "Internal server error"
           }
         }
       }
@@ -66,7 +69,7 @@
           }
         ],
         "responses": {
-          "default": {
+          "200": {
             "description": "Placeholders",
             "content": {
               "application/json": {
@@ -75,6 +78,9 @@
                 }
               }
             }
+          },
+          "default": {
+            "description": "Internal server error"
           }
         }
       }
@@ -97,7 +103,7 @@
           }
         ],
         "responses": {
-          "default": {
+          "200": {
             "description": "Documents",
             "content": {
               "application/json": {
@@ -109,6 +115,9 @@
                 }
               }
             }
+          },
+          "default": {
+            "description": "Internal server error"
           }
         }
       }

@@ -1,5 +1,9 @@
 package com.github.maximtereshchenko.gateway;
 
+import com.github.maximtereshchenko.outbox.Outbox;
+import com.github.maximtereshchenko.test.ConfluentPlatformExtension;
+import com.github.maximtereshchenko.test.PostgreSqlExtension;
+import com.github.maximtereshchenko.test.PredictableUUIDExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,77 +22,105 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ExtendWith({KeycloakExtension.class, ClerkReadExtension.class})
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "clerk.write.topic=topic")
+@ExtendWith({
+        KeycloakExtension.class,
+        PostgreSqlExtension.class,
+        ConfluentPlatformExtension.class,
+        PredictableUUIDExtension.class,
+        ClerkReadExtension.class
+})
 final class IntegrationTests {
 
     @Autowired
     private TestRestTemplate restTemplate;
+    @Autowired
+    private Outbox outbox;
 
     @Test
-    void givenAuthorizedUser_whenViewTemplates_thenTemplatesRetrieved(String token, UUID userId) {
+    void givenAuthorizedUser_whenViewTemplates_thenTemplatesRetrieved(User user) {
         var response = restTemplate.exchange(
                 "/templates",
                 HttpMethod.GET,
-                authorization(token),
+                request(user.token()),
                 new ParameterizedTypeReference<Collection<ClerkReadGatewayTemplate>>() {}
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody())
                 .containsExactly(
-                        new ClerkReadGatewayTemplate()
-                                .id(userId)
-                                .userId(userId)
-                                .name("name")
-                                .timestamp(Instant.parse("2020-01-01T00:00:00Z"))
+                        new ClerkReadGatewayTemplate(
+                                user.id(),
+                                user.id(),
+                                "name",
+                                Instant.parse("2020-01-01T00:00:00Z")
+                        )
                 );
     }
 
     @Test
-    void givenAuthorizedUser_whenViewPlaceholders_thenPlaceholdersRetrieved(String token, UUID userId) {
+    void givenAuthorizedUser_whenViewPlaceholders_thenPlaceholdersRetrieved(User user) {
         var response = restTemplate.exchange(
                 "/templates/00000000-0000-0000-0000-000000000001/placeholders",
                 HttpMethod.GET,
-                authorization(token),
+                request(user.token()),
                 ClerkReadGatewayPlaceholders.class
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody())
                 .isEqualTo(
-                        new ClerkReadGatewayPlaceholders()
-                                .id(UUID.fromString("00000000-0000-0000-0000-000000000001"))
-                                .userId(userId)
-                                .placeholders(List.of("key"))
-                                .timestamp(Instant.parse("2020-01-01T00:00:00Z"))
+                        new ClerkReadGatewayPlaceholders(
+                                UUID.fromString("00000000-0000-0000-0000-000000000001"),
+                                user.id(),
+                                List.of("key"),
+                                Instant.parse("2020-01-01T00:00:00Z")
+                        )
                 );
     }
 
     @Test
-    void givenAuthorizedUser_whenViewDocuments_thenDocumentsRetrieved(String token, UUID userId) {
+    void givenAuthorizedUser_whenViewDocuments_thenDocumentsRetrieved(User user) {
         var response = restTemplate.exchange(
                 "/documents",
                 HttpMethod.GET,
-                authorization(token),
+                request(user.token()),
                 new ParameterizedTypeReference<Collection<ClerkReadGatewayDocument>>() {}
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         var instant = Instant.parse("2020-01-01T00:00:00Z");
         assertThat(response.getBody())
-                .containsExactly(
-                        new ClerkReadGatewayDocument()
-                                .fileId(userId)
-                                .userId(userId)
-                                .timeToLive(instant)
-                                .timestamp(instant)
-                );
+                .containsExactly(new ClerkReadGatewayDocument(user.id(), user.id(), instant, instant));
     }
 
-    private <T> HttpEntity<T> authorization(String token) {
+    @Test
+    void givenAuthorizedUser_whenCreateTemplate_thenTemplateCreated(User user, UUID fileId) {
+        var response = restTemplate.exchange(
+                "/templates",
+                HttpMethod.POST,
+                request(
+                        user.token(),
+                        new ClerkWriteGatewayCreateTemplateRequest(
+                                user.id(),
+                                fileId,
+                                "name"
+                        )
+                ),
+                Void.class
+        );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
+        assertThat(outbox.size()).isEqualTo(1);
+    }
+
+    private <T> HttpEntity<T> request(String token) {
+        return request(token, null);
+    }
+
+    private <T> HttpEntity<T> request(String token, T body) {
         var httpHeaders = new HttpHeaders();
         httpHeaders.setBearerAuth(token);
-        return new HttpEntity<>(httpHeaders);
+        return new HttpEntity<>(body, httpHeaders);
     }
 }

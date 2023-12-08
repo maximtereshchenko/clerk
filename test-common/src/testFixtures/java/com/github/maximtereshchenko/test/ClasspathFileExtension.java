@@ -11,17 +11,25 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public final class ClasspathFileExtension implements ParameterResolver {
+final class ClasspathFileExtension implements ParameterResolver {
 
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
-        return parameterContext.getParameter().getType() == Path.class;
+        return parameterContext.getParameter().getType() == Path.class &&
+               parameterContext.isAnnotated(ClasspathResource.class);
     }
 
     @Override
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext)
             throws ParameterResolutionException {
-        return Paths.get(uri(parameterContext.getParameter().getName()));
+        return Paths.get(
+                uri(
+                        parameterContext.findAnnotation(ClasspathResource.class)
+                                .map(ClasspathResource::value)
+                                .filter(name -> !name.isBlank())
+                                .orElse(parameterContext.getParameter().getName())
+                )
+        );
     }
 
     private URI uri(String name) {

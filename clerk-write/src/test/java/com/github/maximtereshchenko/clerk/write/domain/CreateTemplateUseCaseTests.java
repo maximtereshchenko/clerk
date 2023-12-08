@@ -9,7 +9,7 @@ import com.github.maximtereshchenko.clerk.write.api.port.Files;
 import com.github.maximtereshchenko.clerk.write.api.port.PersistentTemplate;
 import com.github.maximtereshchenko.clerk.write.api.port.Templates;
 import com.github.maximtereshchenko.clerk.write.api.port.exception.FileBelongsToAnotherUser;
-import com.github.maximtereshchenko.test.ClasspathFileExtension;
+import com.github.maximtereshchenko.test.ClasspathResource;
 import com.github.maximtereshchenko.test.PredictableUUIDExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +23,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@ExtendWith({ClasspathFileExtension.class, PredictableUUIDExtension.class, ClerkWriteModuleExtension.class})
+@ExtendWith({PredictableUUIDExtension.class, ClerkWriteModuleExtension.class})
 final class CreateTemplateUseCaseTests {
 
     @Test
@@ -31,7 +31,7 @@ final class CreateTemplateUseCaseTests {
             Files files,
             UUID fileId,
             UUID userId,
-            Path template,
+            @ClasspathResource Path template,
             UUID templateId,
             Templates templates,
             ClerkWriteModule module
@@ -57,7 +57,7 @@ final class CreateTemplateUseCaseTests {
             Files files,
             UUID fileId,
             UUID userId,
-            Path emptyTemplate,
+            @ClasspathResource Path emptyTemplate,
             UUID templateId,
             ClerkWriteModule module
     ) throws Exception {
@@ -74,7 +74,7 @@ final class CreateTemplateUseCaseTests {
             Files files,
             UUID fileId,
             UUID userId,
-            Path template,
+            @ClasspathResource Path template,
             UUID templateId,
             EventBusInMemory eventBus,
             Clock clock,
@@ -113,7 +113,7 @@ final class CreateTemplateUseCaseTests {
             Files files,
             UUID fileId,
             UUID userId,
-            Path template,
+            @ClasspathResource Path template,
             UUID templateId,
             ClerkWriteModule module
     ) throws Exception {
@@ -131,7 +131,7 @@ final class CreateTemplateUseCaseTests {
             UUID fileId,
             UUID otherUserId,
             UUID userId,
-            Path template,
+            @ClasspathResource Path template,
             UUID templateId,
             ClerkWriteModule module
     ) throws Exception {

@@ -2,7 +2,7 @@ package com.github.maximtereshchenko.filestorage.domain;
 
 import com.github.maximtereshchenko.filestorage.api.FileStorageModule;
 import com.github.maximtereshchenko.filestorage.api.exception.IdIsUsed;
-import com.github.maximtereshchenko.test.ClasspathFileExtension;
+import com.github.maximtereshchenko.test.ClasspathResource;
 import com.github.maximtereshchenko.test.PredictableUUIDExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,11 +18,16 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@ExtendWith({ClasspathFileExtension.class, PredictableUUIDExtension.class, FileStorageModuleExtension.class})
+@ExtendWith({PredictableUUIDExtension.class, FileStorageModuleExtension.class})
 final class PersistFileUseCaseTests extends UseCaseTest {
 
     @Test
-    void givenFile_whenPersistFile_thenFileCanBeDownloaded(Path file, UUID id, UUID userId, FileStorageModule module)
+    void givenFile_whenPersistFile_thenFileCanBeDownloaded(
+            @ClasspathResource Path file,
+            UUID id,
+            UUID userId,
+            FileStorageModule module
+    )
             throws Exception {
         persistFile(module, id, userId, file);
         var outputStream = new ByteArrayOutputStream();
@@ -33,7 +38,12 @@ final class PersistFileUseCaseTests extends UseCaseTest {
     }
 
     @Test
-    void givenIdIsUsed_whenPersistFile_thenIdIsUsedThrown(Path file, UUID id, UUID userId, FileStorageModule module)
+    void givenIdIsUsed_whenPersistFile_thenIdIsUsedThrown(
+            @ClasspathResource Path file,
+            UUID id,
+            UUID userId,
+            FileStorageModule module
+    )
             throws Exception {
         persistFile(module, id, userId, file);
         var inputStream = InputStream.nullInputStream();

@@ -1,0 +1,11 @@
+{
+  "type": "record",
+  "name": "Message",
+  "namespace": "com.github.maximtereshchenko.outbox",
+  "fields": [
+    {
+      "name": "payload",
+      "type": "string"
+    }
+  ]
+}

@@ -4,7 +4,7 @@ import com.github.maximtereshchenko.filestorage.api.FileStorageModule;
 import com.github.maximtereshchenko.filestorage.api.exception.CouldNotFindFile;
 import com.github.maximtereshchenko.filestorage.api.exception.FileBelongsToAnotherUser;
 import com.github.maximtereshchenko.filestorage.api.exception.FileIsExpired;
-import com.github.maximtereshchenko.test.ClasspathFileExtension;
+import com.github.maximtereshchenko.test.ClasspathResource;
 import com.github.maximtereshchenko.test.PredictableUUIDExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,7 +16,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@ExtendWith({ClasspathFileExtension.class, PredictableUUIDExtension.class, FileStorageModuleExtension.class})
+@ExtendWith({PredictableUUIDExtension.class, FileStorageModuleExtension.class})
 final class WriteFileUseCaseTests extends UseCaseTest {
 
     @Test
@@ -29,7 +29,12 @@ final class WriteFileUseCaseTests extends UseCaseTest {
     }
 
     @Test
-    void givenExpiredFile_whenWriteFile_thenFileIsExpiredThrown(Path file, UUID id, UUID userId, FileStorageModule module)
+    void givenExpiredFile_whenWriteFile_thenFileIsExpiredThrown(
+            @ClasspathResource Path file,
+            UUID id,
+            UUID userId,
+            FileStorageModule module
+    )
             throws Exception {
         persistFile(module, id, userId, Instant.MIN, file);
         var outputStream = OutputStream.nullOutputStream();
@@ -42,7 +47,7 @@ final class WriteFileUseCaseTests extends UseCaseTest {
 
     @Test
     void givenFileBelongsToAnotherUser_whenWriteFile_thenFileBelongsToAnotherUserThrown(
-            Path file,
+            @ClasspathResource Path file,
             UUID id,
             UUID otherUserId,
             UUID userId,

@@ -6,7 +6,7 @@ import com.github.maximtereshchenko.clerk.write.api.exception.CouldNotFindTempla
 import com.github.maximtereshchenko.clerk.write.api.exception.TemplateBelongsToAnotherUser;
 import com.github.maximtereshchenko.clerk.write.api.exception.ValuesAreRequired;
 import com.github.maximtereshchenko.clerk.write.api.port.Files;
-import com.github.maximtereshchenko.test.ClasspathFileExtension;
+import com.github.maximtereshchenko.test.ClasspathResource;
 import com.github.maximtereshchenko.test.PredictableUUIDExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,7 +22,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@ExtendWith({ClasspathFileExtension.class, PredictableUUIDExtension.class, ClerkWriteModuleExtension.class})
+@ExtendWith({PredictableUUIDExtension.class, ClerkWriteModuleExtension.class})
 final class CreateDocumentFromTemplateUseCaseTests {
 
     @Test
@@ -59,7 +59,7 @@ final class CreateDocumentFromTemplateUseCaseTests {
             Files files,
             UUID fileId,
             UUID userId,
-            Path template,
+            @ClasspathResource Path template,
             UUID templateId,
             UUID documentId,
             ClerkWriteModule module
@@ -79,7 +79,7 @@ final class CreateDocumentFromTemplateUseCaseTests {
             Files files,
             UUID fileId,
             UUID userId,
-            Path template,
+            @ClasspathResource Path template,
             UUID templateId,
             UUID documentId,
             EventBusInMemory eventBus,
@@ -109,7 +109,7 @@ final class CreateDocumentFromTemplateUseCaseTests {
             UUID fileId,
             UUID otherUserId,
             UUID userId,
-            Path template,
+            @ClasspathResource Path template,
             UUID templateId,
             UUID documentId,
             ClerkWriteModule module

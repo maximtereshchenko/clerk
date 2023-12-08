@@ -1,0 +1,7 @@
+CREATE TABLE outbox (
+  id BIGSERIAL NOT NULL PRIMARY KEY,
+  message_key BYTEA,
+  message_payload BYTEA NOT NULL,
+  topic VARCHAR NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL
+);

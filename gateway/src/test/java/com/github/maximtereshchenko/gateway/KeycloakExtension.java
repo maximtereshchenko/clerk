@@ -1,6 +1,9 @@
 package com.github.maximtereshchenko.gateway;
 
-import org.junit.jupiter.api.extension.*;
+import com.github.maximtereshchenko.test.ContainerExtension;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.ParameterContext;
+import org.junit.jupiter.api.extension.ParameterResolver;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -15,16 +18,48 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-final class KeycloakExtension implements BeforeAllCallback, AfterAllCallback, ParameterResolver {
+final class KeycloakExtension extends ContainerExtension<GenericContainer<?>> implements ParameterResolver {
 
     private static final String ISSUER_URI_KEY = "spring.security.oauth2.resourceserver.jwt.issuer-uri";
 
-    private final ExtensionContext.Namespace namespace = ExtensionContext.Namespace.create(getClass());
     private final RestTemplate restTemplate = new RestTemplate();
 
+    KeycloakExtension() {
+        super(
+                Map.of(
+                        ISSUER_URI_KEY,
+                        container ->
+                                "http://%s:%s/realms/test".formatted(
+                                        container.getHost(),
+                                        container.getFirstMappedPort()
+                                )
+                )
+        );
+    }
+
     @Override
-    public void beforeAll(ExtensionContext context) {
-        var keycloak = new GenericContainer<>(DockerImageName.parse("keycloak/keycloak:23.0"))
+    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
+        return parameterContext.getParameter().getType() == User.class;
+    }
+
+    @Override
+    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
+        return new User(
+                UUID.fromString("00000000-0000-0000-0000-000000000001"),
+                Objects.requireNonNull(
+                                restTemplate.exchange(
+                                                requestEntity(),
+                                                new ParameterizedTypeReference<Map<String, String>>() {}
+                                        )
+                                        .getBody()
+                        )
+                        .get("access_token")
+        );
+    }
+
+    @Override
+    protected GenericContainer<?> container() {
+        return new GenericContainer<>(DockerImageName.parse("keycloak/keycloak:23.0"))
                 .withEnv("KEYCLOAK_ADMIN", "admin")
                 .withEnv("KEYCLOAK_ADMIN_PASSWORD", "admin")
                 .withCommand("start-dev --import-realm")
@@ -33,41 +68,6 @@ final class KeycloakExtension implements BeforeAllCallback, AfterAllCallback, Pa
                         "/opt/keycloak/data/import/realm.json"
                 )
                 .withExposedPorts(8080);
-        keycloak.start();
-        System.setProperty(
-                ISSUER_URI_KEY,
-                "http://%s:%s/realms/test".formatted(keycloak.getHost(), keycloak.getFirstMappedPort())
-        );
-        context.getStore(namespace)
-                .put(GenericContainer.class, keycloak);
-    }
-
-    @Override
-    public void afterAll(ExtensionContext context) {
-        context.getStore(namespace)
-                .get(GenericContainer.class, GenericContainer.class)
-                .stop();
-    }
-
-    @Override
-    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
-        var type = parameterContext.getParameter().getType();
-        return type == String.class || type == UUID.class;
-    }
-
-    @Override
-    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
-        if (parameterContext.getParameter().getType() == UUID.class) {
-            return UUID.fromString("00000000-0000-0000-0000-000000000001");
-        }
-        return Objects.requireNonNull(
-                        restTemplate.exchange(
-                                        requestEntity(),
-                                        new ParameterizedTypeReference<Map<String, String>>() {}
-                                )
-                                .getBody()
-                )
-                .get("access_token");
     }
 
     private RequestEntity<LinkedMultiValueMap<String, String>> requestEntity() {

@@ -1,14 +1,16 @@
 plugins {
     `java-library`
-    `jvm-test-suite`
 }
 
 dependencies {
-    implementation(project(":clerk-write-api"))
-    testImplementation(project(":clerk-write-templates-in-memory"))
-    testImplementation(project(":clerk-write-template-engine-freemarker"))
+    implementation(platform(libs.spring.boot.bom))
+    implementation(libs.spring.boot.starter.data.jdbc)
+    implementation(libs.kafka.clients)
+    api(libs.kafka.avro.serializer)
     testImplementation(testFixtures(project(":test-common")))
-    testImplementation(libs.assertj)
+    testImplementation(libs.spring.boot.starter.test)
+    testImplementation(libs.flyway.core)
+    testImplementation(libs.postgresql)
 }
 
 tasks {

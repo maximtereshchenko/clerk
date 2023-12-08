@@ -4,7 +4,7 @@ import com.github.maximtereshchenko.filestorage.api.FileStorageModule;
 import com.github.maximtereshchenko.filestorage.api.exception.CouldNotFindFile;
 import com.github.maximtereshchenko.filestorage.api.exception.FileBelongsToAnotherUser;
 import com.github.maximtereshchenko.filestorage.api.exception.FileIsExpired;
-import com.github.maximtereshchenko.test.ClasspathFileExtension;
+import com.github.maximtereshchenko.test.ClasspathResource;
 import com.github.maximtereshchenko.test.ManualClock;
 import com.github.maximtereshchenko.test.PredictableUUIDExtension;
 import org.junit.jupiter.api.Test;
@@ -21,12 +21,12 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@ExtendWith({ClasspathFileExtension.class, PredictableUUIDExtension.class, FileStorageModuleExtension.class})
+@ExtendWith({PredictableUUIDExtension.class, FileStorageModuleExtension.class})
 final class SetTimeToLiveUseCaseTests extends UseCaseTest {
 
     @Test
     void givenFileExists_whenSetTimeToLive_thenFileIsNotCleaned(
-            Path file,
+            @ClasspathResource Path file,
             UUID id,
             UUID userId,
             ManualClock clock,
@@ -56,7 +56,7 @@ final class SetTimeToLiveUseCaseTests extends UseCaseTest {
 
     @Test
     void givenExpiredFile_whenSetTimeToLive_thenFileIsExpiredThrown(
-            Path file,
+            @ClasspathResource Path file,
             UUID id,
             UUID userId,
             FileStorageModule module
@@ -71,7 +71,7 @@ final class SetTimeToLiveUseCaseTests extends UseCaseTest {
 
     @Test
     void givenFileBelongsToAnotherUser_whenSetTimeToLive_thenFileBelongsToAnotherUserThrown(
-            Path file,
+            @ClasspathResource Path file,
             UUID id,
             UUID otherUserId,
             UUID userId,

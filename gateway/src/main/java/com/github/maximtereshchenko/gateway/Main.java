@@ -1,5 +1,7 @@
 package com.github.maximtereshchenko.gateway;
 
+import com.github.maximtereshchenko.outbox.Outbox;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -8,6 +10,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+
+import java.time.Clock;
 
 @SpringBootConfiguration
 @EnableAutoConfiguration
@@ -21,6 +25,16 @@ class Main {
     @Bean
     ClerkReadController clerkReadController(ClerkReadClient clerkReadClient) {
         return new ClerkReadController(clerkReadClient, new TranslatorImpl());
+    }
+
+    @Bean
+    ClerkWriteController clerkWriteController(Outbox outbox, @Value("${clerk.write.topic}") String topic) {
+        return new ClerkWriteController(outbox, topic);
+    }
+
+    @Bean
+    Clock clock() {
+        return Clock.systemDefaultZone();
     }
 
     @Bean

@@ -12,7 +12,7 @@
         ],
         "operationId": "templates",
         "responses": {
-          "default": {
+          "200": {
             "description": "Templates",
             "content": {
               "application/json": {
@@ -24,6 +24,32 @@
                 }
               }
             }
+          },
+          "default": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "clerk write gateway"
+        ],
+        "operationId": "createTemplate",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/clerkWriteGatewayCreateTemplateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Create template request accepted"
+          },
+          "default": {
+            "description": "Internal server error"
           }
         }
       }
@@ -46,7 +72,7 @@
           }
         ],
         "responses": {
-          "default": {
+          "200": {
             "description": "Placeholders",
             "content": {
               "application/json": {
@@ -55,6 +81,9 @@
                 }
               }
             }
+          },
+          "default": {
+            "description": "Internal server error"
           }
         }
       }
@@ -66,7 +95,7 @@
         ],
         "operationId": "documents",
         "responses": {
-          "default": {
+          "200": {
             "description": "Documents",
             "content": {
               "application/json": {
@@ -78,6 +107,9 @@
                 }
               }
             }
+          },
+          "default": {
+            "description": "Internal server error"
           }
         }
       }
@@ -165,6 +197,27 @@
           "userId",
           "timeToLive",
           "timestamp"
+        ]
+      },
+      "clerkWriteGatewayCreateTemplateRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fileId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "fileId",
+          "name"
         ]
       }
     }

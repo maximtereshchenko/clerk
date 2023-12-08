@@ -9,7 +9,6 @@ dependencies {
     testImplementation(project(":clerk-read-placeholders-in-memory"))
     testImplementation(project(":clerk-read-documents-in-memory"))
     testImplementation(testFixtures(project(":test-common")))
-    testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj)
 }
 

@@ -1,0 +1,23 @@
+{
+  "type": "record",
+  "name": "CreateTemplateCommand",
+  "namespace": "com.github.maximtereshchenko.clerk.write",
+  "fields": [
+    {
+      "name": "id",
+      "type": "string"
+    },
+    {
+      "name": "userId",
+      "type": "string"
+    },
+    {
+      "name": "fileId",
+      "type": "string"
+    },
+    {
+      "name": "name",
+      "type": "string"
+    }
+  ]
+}

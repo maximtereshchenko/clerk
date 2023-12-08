@@ -8,7 +8,6 @@ dependencies {
     testImplementation(testFixtures(project(":test-common")))
     testImplementation(project(":file-storage-files-on-disk"))
     testImplementation(project(":file-storage-file-labels-in-memory"))
-    testImplementation(libs.junit.jupiter)
     testImplementation(libs.assertj)
 }
 
