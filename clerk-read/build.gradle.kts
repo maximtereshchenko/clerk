@@ -1,6 +1,6 @@
 plugins {
     `java-library`
-    `jvm-test-suite`
+    `test-conventions`
 }
 
 dependencies {
@@ -11,12 +11,3 @@ dependencies {
     testImplementation(testFixtures(project(":test-common")))
     testImplementation(libs.assertj)
 }
-
-testing {
-    suites {
-        val test by getting(JvmTestSuite::class) {
-            useJUnitJupiter()
-        }
-    }
-}
-

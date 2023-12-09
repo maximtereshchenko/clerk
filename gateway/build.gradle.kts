@@ -2,6 +2,7 @@ plugins {
     application
     `generate-open-api`
     `generate-avro`
+    `test-conventions`
 }
 
 dependencies {
@@ -34,21 +35,5 @@ generateOpenApi {
 }
 
 generateAvro {
-    files = listOf(
-        "${rootDir}/avro/message.avsc"
-    )
-}
-
-tasks {
-    compileTestJava {
-        options.compilerArgs.add("-parameters")
-    }
-}
-
-testing {
-    suites {
-        val test by getting(JvmTestSuite::class) {
-            useJUnitJupiter()
-        }
-    }
+    files = listOf("${rootDir}/avro/create-template-command.avsc")
 }

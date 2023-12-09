@@ -1,6 +1,6 @@
 plugins {
     `java-library`
-    `jvm-test-suite`
+    `test-conventions`
 }
 
 dependencies {
@@ -9,18 +9,4 @@ dependencies {
     testImplementation(project(":clerk-write-template-engine-freemarker"))
     testImplementation(testFixtures(project(":test-common")))
     testImplementation(libs.assertj)
-}
-
-tasks {
-    compileTestJava {
-        options.compilerArgs.add("-parameters")
-    }
-}
-
-testing {
-    suites {
-        val test by getting(JvmTestSuite::class) {
-            useJUnitJupiter()
-        }
-    }
 }
