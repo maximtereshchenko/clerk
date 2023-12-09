@@ -1,6 +1,8 @@
 import org.gradle.api.DefaultTask
+import org.gradle.api.file.Directory
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
@@ -10,8 +12,6 @@ import javax.inject.Inject
 
 abstract class GenerateOpenApiTask @Inject constructor(objectFactory: ObjectFactory) : DefaultTask() {
 
-    private val original = GenerateTask(objectFactory)
-
     @get:InputFiles
     abstract val files: Property<Collection<String>>
 
@@ -19,12 +19,14 @@ abstract class GenerateOpenApiTask @Inject constructor(objectFactory: ObjectFact
     abstract val packageName: Property<String>
 
     @get:OutputDirectory
-    abstract val output: Property<String>
+    abstract val output: Property<Provider<Directory>>
+
+    private val original = GenerateTask(objectFactory)
 
     @TaskAction
     fun run() {
         original.generatorName.set("spring")
-        original.outputDir.set(output)
+        original.outputDir.set(output.get().get().toString())
         original.configOptions.set(
             mapOf(
                 "apiPackage" to packageName.get(),

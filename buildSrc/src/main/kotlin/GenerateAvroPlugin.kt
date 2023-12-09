@@ -5,14 +5,13 @@ import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.withType
 
-class GenerateOpenApiPlugin : Plugin<Project> {
+class GenerateAvroPlugin : Plugin<Project> {
 
     override fun apply(target: Project) {
-        val extension = target.extensions.create("generateOpenApi", GenerateOpenApiPluginExtension::class.java)
-        val task = target.tasks.register("generateOpenApi", GenerateOpenApiTask::class.java) {
+        val extension = target.extensions.create("generateAvro", GenerateAvroPluginExtension::class.java)
+        val task = target.tasks.register("generateAvro", GenerateAvroTask::class.java) {
             files.set(extension.files)
-            packageName.set(extension.packageName)
-            output.set(target.layout.buildDirectory.dir("generated/sources/open-api/main/java"))
+            output.set(target.layout.buildDirectory.dir("generated/sources/avro/main/java"))
         }
         target.tasks.withType<JavaCompile> {
             dependsOn += task

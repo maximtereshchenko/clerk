@@ -33,7 +33,6 @@ dependencyResolutionManagement {
             library("flyway-core", "org.flywaydb", "flyway-core").version("9.16.3")
             library("postgresql", "org.postgresql", "postgresql").version("42.7.0")
             library("kafka-avro-serializer", "io.confluent", "kafka-avro-serializer").version("7.5.1")
-            library("avro-tools", "org.apache.avro", "avro-tools").version("1.11.3")
             library("mapstruct", "org.mapstruct", "mapstruct").versionRef(mapstruct)
             library("mapstruct-processor", "org.mapstruct", "mapstruct-processor").versionRef(mapstruct)
             library("testcontainers", "org.testcontainers", "testcontainers").withoutVersion()
@@ -84,7 +83,6 @@ dependencyResolutionManagement {
                 "spring-cloud-starter-openfeign"
             )
                 .withoutVersion()
-            plugin("openapi-generator", "org.openapi.generator").version("7.1.0")
         }
     }
 }
