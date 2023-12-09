@@ -84,7 +84,7 @@ dependencyResolutionManagement {
                 "spring-cloud-starter-openfeign"
             )
                 .withoutVersion()
-            plugin("openapi.generator", "org.openapi.generator").version("7.1.0")
+            plugin("openapi-generator", "org.openapi.generator").version("7.1.0")
         }
     }
 }

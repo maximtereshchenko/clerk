@@ -1,11 +1,9 @@
 import org.apache.avro.tool.SpecificCompilerTool
-import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
-import java.nio.file.Paths
-import kotlin.io.path.listDirectoryEntries
 
 plugins {
     application
-    alias(libs.plugins.openapi.generator)
+    //alias(libs.plugins.openapi.generator)
+    `generate-open-api`
 }
 
 buildscript {
@@ -35,44 +33,13 @@ dependencies {
     testImplementation(libs.wiremock)
 }
 
-Paths.get("${project.parent?.layout?.projectDirectory}")
-    .resolve("open-api-specifications")
-    .listDirectoryEntries()
-    .forEach {
-        val task = tasks.register<GenerateTask>(it.fileName.toString()) {
-            generatorName = "spring"
-            inputSpec = it.toString()
-            outputDir = "${layout.buildDirectory.get()}/generated/sources/open-api/main/java"
-            configOptions = mapOf(
-                "apiPackage" to "com.github.maximtereshchenko.gateway",
-                "modelPackage" to "com.github.maximtereshchenko.gateway",
-                "interfaceOnly" to "true",
-                "skipDefaultInterface" to "true",
-                "sourceFolder" to "",
-                "annotationLibrary" to "none",
-                "documentationProvider" to "none",
-                "useSpringBoot3" to "true",
-                "openApiNullable" to "false",
-                "useTags" to "true"
-            )
-            typeMappings = mapOf(
-                "DateTime" to "Instant"
-            )
-            importMappings = mapOf(
-                "Instant" to "java.time.Instant"
-            )
-        }
-        tasks.compileJava {
-            dependsOn += task
-        }
-        sourceSets {
-            main {
-                java {
-                    srcDir(task)
-                }
-            }
-        }
-    }
+generateOpenApi {
+    files = listOf(
+        "${rootDir}/open-api-specifications/clerk-read-api.json",
+        "${rootDir}/open-api-specifications/gateway-api.json"
+    )
+    packageName = "com.github.maximtereshchenko.gateway"
+}
 
 val generateAvro = tasks.register<DefaultTask>("generate-avro") {
     val schemas = layout.projectDirectory.dir("src/main/avro")
