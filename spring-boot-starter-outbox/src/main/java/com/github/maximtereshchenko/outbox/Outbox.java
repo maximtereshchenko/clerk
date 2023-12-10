@@ -35,7 +35,11 @@ public final class Outbox {
         );
     }
 
-    public long size() {
-        return outboxRepository.count();
+    public boolean containsMessageWithKey(String key) {
+        return outboxRepository.existsByMessageKey(keySerializer.serialize(null, key));
+    }
+
+    public void clear() {
+        outboxRepository.deleteAll();
     }
 }

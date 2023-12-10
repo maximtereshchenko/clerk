@@ -112,6 +112,29 @@
             "description": "Internal server error"
           }
         }
+      },
+      "post": {
+        "tags": [
+          "clerk write gateway"
+        ],
+        "operationId": "createDocument",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/clerkWriteGatewayCreateDocumentRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Create document request accepted"
+          },
+          "default": {
+            "description": "Internal server error"
+          }
+        }
       }
     }
   },
@@ -218,6 +241,42 @@
           "id",
           "fileId",
           "name"
+        ]
+      },
+      "clerkWriteGatewayCreateDocumentRequest": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "templateId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "key",
+                "value"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "templateId",
+          "values"
         ]
       }
     }

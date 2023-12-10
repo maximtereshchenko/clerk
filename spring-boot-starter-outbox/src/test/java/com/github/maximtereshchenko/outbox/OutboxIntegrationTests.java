@@ -5,6 +5,7 @@ import com.github.maximtereshchenko.test.ConfluentPlatformExtension;
 import com.github.maximtereshchenko.test.PostgreSqlExtension;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,10 +38,14 @@ class OutboxIntegrationTests {
     @Autowired
     private OutboxRepository outboxRepository;
 
+    @AfterEach
+    void cleanUp() {
+        outboxRepository.deleteAll();
+    }
+
     @Test
     void givenAvroRecord_whenPut_thenMessageSaved(@ClasspathResource("message.avsc") Path schemaPath) throws Exception {
         var record = new GenericData.Record(schema(schemaPath));
-        record.put("payload", "payload");
 
         outbox.put("key", record, "topic");
 
@@ -54,7 +59,33 @@ class OutboxIntegrationTests {
                     assertThat(item.topic()).isEqualTo("topic");
                     assertThat(item.createdAt()).isEqualTo(Instant.parse("2020-01-01T00:00:00Z"));
                 });
+    }
 
+    @Test
+    void givenSavedMessage_whenContainsMessageWithKey_thenTrueReturned(
+            @ClasspathResource("message.avsc") Path schemaPath
+    ) throws Exception {
+        var record = new GenericData.Record(schema(schemaPath));
+        outbox.put("key", record, "topic");
+
+        assertThat(outbox.containsMessageWithKey("key")).isTrue();
+    }
+
+    @Test
+    void givenNoMessages_whenContainsMessageWithKey_thenFalseReturned() {
+        assertThat(outbox.containsMessageWithKey("key")).isFalse();
+    }
+
+    @Test
+    void givenMessages_whenClear_thenTableCleaned(@ClasspathResource("message.avsc") Path schemaPath) throws Exception {
+        var record = new GenericData.Record(schema(schemaPath));
+        outbox.put("key1", record, "topic");
+        outbox.put("key2", record, "topic");
+        outbox.put("key3", record, "topic");
+
+        outbox.clear();
+
+        assertThat(outboxRepository.findAll()).isEmpty();
     }
 
     private Schema schema(Path path) throws IOException {

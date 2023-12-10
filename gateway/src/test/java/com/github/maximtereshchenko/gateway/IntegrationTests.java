@@ -4,6 +4,7 @@ import com.github.maximtereshchenko.outbox.Outbox;
 import com.github.maximtereshchenko.test.ConfluentPlatformExtension;
 import com.github.maximtereshchenko.test.PostgreSqlExtension;
 import com.github.maximtereshchenko.test.PredictableUUIDExtension;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,13 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = "clerk.write.topic=topic")
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = {
+                "clerk.write.create-template-command.topic=create-template-command",
+                "clerk.write.create-document-command.topic=create-document-command"
+        }
+)
 @ExtendWith({
         KeycloakExtension.class,
         PostgreSqlExtension.class,
@@ -36,6 +43,11 @@ final class IntegrationTests {
     private TestRestTemplate restTemplate;
     @Autowired
     private Outbox outbox;
+
+    @AfterEach
+    void cleanUp() {
+        outbox.clear();
+    }
 
     @Test
     void givenAuthorizedUser_whenViewTemplates_thenTemplatesRetrieved(User user) {
@@ -95,14 +107,14 @@ final class IntegrationTests {
     }
 
     @Test
-    void givenAuthorizedUser_whenCreateTemplate_thenTemplateCreated(User user, UUID fileId) {
+    void givenAuthorizedUser_whenCreateTemplate_thenCreateTemplateCommandSent(User user, UUID id, UUID fileId) {
         var response = restTemplate.exchange(
                 "/templates",
                 HttpMethod.POST,
                 request(
                         user.token(),
                         new ClerkWriteGatewayCreateTemplateRequest(
-                                user.id(),
+                                id,
                                 fileId,
                                 "name"
                         )
@@ -111,7 +123,27 @@ final class IntegrationTests {
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
-        assertThat(outbox.size()).isEqualTo(1);
+        assertThat(outbox.containsMessageWithKey(id.toString())).isTrue();
+    }
+
+    @Test
+    void givenAuthorizedUser_whenCreateTemplate_thenCreateDocumentCommandSent(User user, UUID id, UUID templateId) {
+        var response = restTemplate.exchange(
+                "/documents",
+                HttpMethod.POST,
+                request(
+                        user.token(),
+                        new ClerkWriteGatewayCreateDocumentRequest(
+                                id,
+                                templateId,
+                                List.of(new ClerkWriteGatewayCreateDocumentRequestValuesInner("key", "value"))
+                        )
+                ),
+                Void.class
+        );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
+        assertThat(outbox.containsMessageWithKey(id.toString())).isTrue();
     }
 
     private <T> HttpEntity<T> request(String token) {

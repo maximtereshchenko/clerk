@@ -35,5 +35,8 @@ generateOpenApi {
 }
 
 generateAvro {
-    files = listOf("${rootDir}/avro/create-template-command.avsc")
+    files = listOf(
+        "${rootDir}/avro/create-template-command.avsc",
+        "${rootDir}/avro/create-document-command.avsc"
+    )
 }

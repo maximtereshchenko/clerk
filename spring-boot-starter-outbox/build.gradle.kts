@@ -14,3 +14,7 @@ dependencies {
     testImplementation(libs.flyway.core)
     testImplementation(libs.postgresql)
 }
+
+tasks.compileJava {
+    options.compilerArgs.add("-parameters")
+}

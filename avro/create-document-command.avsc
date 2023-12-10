@@ -1,0 +1,26 @@
+{
+  "type": "record",
+  "name": "CreateDocumentCommand",
+  "namespace": "com.github.maximtereshchenko.clerk.write",
+  "fields": [
+    {
+      "name": "id",
+      "type": "string"
+    },
+    {
+      "name": "userId",
+      "type": "string"
+    },
+    {
+      "name": "templateId",
+      "type": "string"
+    },
+    {
+      "name": "values",
+      "type": {
+        "type": "map",
+        "values": "string"
+      }
+    }
+  ]
+}

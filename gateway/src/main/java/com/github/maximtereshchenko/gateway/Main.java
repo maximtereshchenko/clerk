@@ -28,8 +28,12 @@ class Main {
     }
 
     @Bean
-    ClerkWriteController clerkWriteController(Outbox outbox, @Value("${clerk.write.topic}") String topic) {
-        return new ClerkWriteController(outbox, topic);
+    ClerkWriteController clerkWriteController(
+            Outbox outbox,
+            @Value("${clerk.write.create-template-command.topic}") String createTemplateCommandTopic,
+            @Value("${clerk.write.create-document-command.topic}") String createDocumentCommandTopic
+    ) {
+        return new ClerkWriteController(outbox, createTemplateCommandTopic, createDocumentCommandTopic);
     }
 
     @Bean
