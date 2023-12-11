@@ -17,6 +17,7 @@ import com.github.maximtereshchenko.test.ConfluentPlatformExtension;
 import com.github.maximtereshchenko.test.PostgreSqlExtension;
 import com.github.maximtereshchenko.test.PredictableUUIDExtension;
 import org.apache.avro.generic.GenericRecord;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -30,6 +31,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.core.KafkaTemplate;
 
+import java.io.IOException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -76,6 +78,11 @@ final class IntegrationTests {
                 arguments(CouldNotProcessFile.class, Result.COULD_NOT_PROCESS_FILE),
                 arguments(FileBelongsToAnotherUser.class, Result.FILE_BELONGS_TO_ANOTHER_USER)
         );
+    }
+
+    @AfterEach
+    void cleanUp() {
+        outbox.clear();
     }
 
     @Test
@@ -126,6 +133,35 @@ final class IntegrationTests {
                                 new Message(
                                         id.toString(),
                                         new CreateTemplateResult(createTemplateCommand, result),
+                                        createTemplateResultTopic
+                                )
+                        )
+                )
+                        .isTrue()
+        );
+    }
+
+    @Test
+    void givenTechnicalFailure_whenCreateTemplate_thenCommandShouldBeRetried(UUID id, UUID userId, UUID fileId)
+            throws Exception {
+        var createTemplateCommand = new CreateTemplateCommand(
+                id.toString(),
+                userId.toString(),
+                fileId.toString(),
+                "name"
+        );
+        doThrow(IOException.class)
+                .doThrow(IOException.class)
+                .doNothing()
+                .when(module).createTemplate(any(), any(), any(), anyString());
+        kafkaTemplate.send(createTemplateCommandTopic, id.toString(), createTemplateCommand);
+
+        await().untilAsserted(() ->
+                assertThat(
+                        outbox.containsMessage(
+                                new Message(
+                                        id.toString(),
+                                        new CreateTemplateResult(createTemplateCommand, Result.CREATED),
                                         createTemplateResultTopic
                                 )
                         )
