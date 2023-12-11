@@ -31,10 +31,10 @@ public final class ConfluentPlatformExtension implements BeforeAllCallback {
                 .withNetwork(network)
                 .dependsOn(kafka);
         schemaRegistry.start();
-        System.setProperty(
-                "clerk.schema.registry.url",
-                "http://%s:%d".formatted(schemaRegistry.getHost(), schemaRegistry.getFirstMappedPort())
-        );
+        var schemaRegistryUrl = "http://%s:%d".formatted(schemaRegistry.getHost(), schemaRegistry.getFirstMappedPort());
+        System.setProperty("clerk.schema.registry.url", schemaRegistryUrl);
+        System.setProperty("spring.kafka.properties.schema.registry.url", schemaRegistryUrl);
+        System.setProperty("spring.kafka.bootstrap-servers", kafka.getBootstrapServers());
         context.getStore(namespace).put(Containers.class, new Containers(List.of(kafka, schemaRegistry)));
     }
 

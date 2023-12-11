@@ -35,57 +35,31 @@ class OutboxIntegrationTests {
 
     @Autowired
     private Outbox outbox;
-    @Autowired
-    private OutboxRepository outboxRepository;
 
     @AfterEach
     void cleanUp() {
-        outboxRepository.deleteAll();
+        outbox.clear();
     }
 
     @Test
     void givenAvroRecord_whenPut_thenMessageSaved(@ClasspathResource("message.avsc") Path schemaPath) throws Exception {
-        var record = new GenericData.Record(schema(schemaPath));
+        var message = new Message("key", new GenericData.Record(schema(schemaPath)), "topic");
 
-        outbox.put("key", record, "topic");
+        outbox.put(message);
 
-        assertThat(outboxRepository.findAll())
-                .hasSize(1)
-                .first()
-                .satisfies(item -> {
-                    assertThat(item.id()).isNotNull();
-                    assertThat(item.messageKey()).isNotEmpty();
-                    assertThat(item.messagePayload()).isNotEmpty();
-                    assertThat(item.topic()).isEqualTo("topic");
-                    assertThat(item.createdAt()).isEqualTo(Instant.parse("2020-01-01T00:00:00Z"));
-                });
+        assertThat(outbox.containsMessage(message)).isTrue();
     }
 
     @Test
-    void givenSavedMessage_whenContainsMessageWithKey_thenTrueReturned(
+    void givenNoMessages_whenContainsMessage_thenFalseReturned(
             @ClasspathResource("message.avsc") Path schemaPath
     ) throws Exception {
-        var record = new GenericData.Record(schema(schemaPath));
-        outbox.put("key", record, "topic");
-
-        assertThat(outbox.containsMessageWithKey("key")).isTrue();
-    }
-
-    @Test
-    void givenNoMessages_whenContainsMessageWithKey_thenFalseReturned() {
-        assertThat(outbox.containsMessageWithKey("key")).isFalse();
-    }
-
-    @Test
-    void givenMessages_whenClear_thenTableCleaned(@ClasspathResource("message.avsc") Path schemaPath) throws Exception {
-        var record = new GenericData.Record(schema(schemaPath));
-        outbox.put("key1", record, "topic");
-        outbox.put("key2", record, "topic");
-        outbox.put("key3", record, "topic");
-
-        outbox.clear();
-
-        assertThat(outboxRepository.findAll()).isEmpty();
+        assertThat(
+                outbox.containsMessage(
+                        new Message("key", new GenericData.Record(schema(schemaPath)), "topic")
+                )
+        )
+                .isFalse();
     }
 
     private Schema schema(Path path) throws IOException {

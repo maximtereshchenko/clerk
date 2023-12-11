@@ -2,6 +2,7 @@ package com.github.maximtereshchenko.gateway;
 
 import com.github.maximtereshchenko.clerk.write.CreateDocumentCommand;
 import com.github.maximtereshchenko.clerk.write.CreateTemplateCommand;
+import com.github.maximtereshchenko.outbox.Message;
 import com.github.maximtereshchenko.outbox.Outbox;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,21 +29,23 @@ class ClerkWriteController extends UserIdAware implements ClerkWriteGatewayApi {
     @Override
     public ResponseEntity<Void> createDocument(ClerkWriteGatewayCreateDocumentRequest request) {
         outbox.put(
-                request.getId().toString(),
-                new CreateDocumentCommand(
+                new Message(
                         request.getId().toString(),
-                        userId().toString(),
-                        request.getTemplateId().toString(),
-                        request.getValues()
-                                .stream()
-                                .collect(
-                                        Collectors.toMap(
-                                                ClerkWriteGatewayCreateDocumentRequestValuesInner::getKey,
-                                                ClerkWriteGatewayCreateDocumentRequestValuesInner::getValue
+                        new CreateDocumentCommand(
+                                request.getId().toString(),
+                                userId().toString(),
+                                request.getTemplateId().toString(),
+                                request.getValues()
+                                        .stream()
+                                        .collect(
+                                                Collectors.toMap(
+                                                        ClerkWriteGatewayCreateDocumentRequestValuesInner::getKey,
+                                                        ClerkWriteGatewayCreateDocumentRequestValuesInner::getValue
+                                                )
                                         )
-                                )
-                ),
-                createDocumentCommandTopic
+                        ),
+                        createDocumentCommandTopic
+                )
         );
         return ResponseEntity.accepted().build();
     }
@@ -50,14 +53,16 @@ class ClerkWriteController extends UserIdAware implements ClerkWriteGatewayApi {
     @Override
     public ResponseEntity<Void> createTemplate(ClerkWriteGatewayCreateTemplateRequest request) {
         outbox.put(
-                request.getId().toString(),
-                new CreateTemplateCommand(
+                new Message(
                         request.getId().toString(),
-                        userId().toString(),
-                        request.getFileId().toString(),
-                        request.getName()
-                ),
-                createTemplateCommandTopic
+                        new CreateTemplateCommand(
+                                request.getId().toString(),
+                                userId().toString(),
+                                request.getFileId().toString(),
+                                request.getName()
+                        ),
+                        createTemplateCommandTopic
+                )
         );
         return ResponseEntity.accepted().build();
     }

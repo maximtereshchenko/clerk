@@ -1,0 +1,28 @@
+{
+  "type": "record",
+  "name": "CreateTemplateResult",
+  "namespace": "com.github.maximtereshchenko.clerk.write",
+  "fields": [
+    {
+      "name": "command",
+      "type": "com.github.maximtereshchenko.clerk.write.CreateTemplateCommand"
+    },
+    {
+      "name": "result",
+      "type": {
+        "name": "Result",
+        "type": "enum",
+        "symbols": [
+          "CREATED",
+          "NAME_IS_REQUIRED",
+          "ID_IS_TAKEN",
+          "FILE_IS_EXPIRED",
+          "COULD_NOT_FIND_FILE",
+          "TEMPLATE_IS_EMPTY",
+          "COULD_NOT_PROCESS_TEMPLATE",
+          "FILE_BELONGS_TO_ANOTHER_USER"
+        ]
+      }
+    }
+  ]
+}

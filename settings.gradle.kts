@@ -16,6 +16,7 @@ include("file-storage-files-on-disk")
 include("file-storage-file-labels-in-memory")
 include("gateway")
 include("spring-boot-starter-outbox")
+include("clerk-write-application")
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
@@ -30,6 +31,7 @@ dependencyResolutionManagement {
             library("freemarker", "org.freemarker", "freemarker").version("2.3.32")
             library("junit-jupiter", "org.junit.jupiter", "junit-jupiter").version("5.10.1")
             library("wiremock", "org.wiremock", "wiremock").version("3.3.1")
+            library("awaitility", "org.awaitility", "awaitility").version("4.2.0")
             library("flyway-core", "org.flywaydb", "flyway-core").version("9.16.3")
             library("postgresql", "org.postgresql", "postgresql").version("42.7.0")
             library("kafka-avro-serializer", "io.confluent", "kafka-avro-serializer")
@@ -44,6 +46,7 @@ dependencyResolutionManagement {
             library("kafka-clients", "org.apache.kafka", "kafka-clients").withoutVersion()
             library("spring-boot-starter-web", "org.springframework.boot", "spring-boot-starter-web")
                 .withoutVersion()
+            library("spring-kafka", "org.springframework.kafka", "spring-kafka").withoutVersion()
             library(
                 "spring-boot-starter-validation",
                 "org.springframework.boot",
