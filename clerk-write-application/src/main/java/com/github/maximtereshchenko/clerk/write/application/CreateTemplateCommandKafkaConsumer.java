@@ -13,6 +13,8 @@ import com.github.maximtereshchenko.clerk.write.api.port.exception.FileBelongsTo
 import com.github.maximtereshchenko.clerk.write.api.port.exception.FileIsExpired;
 import com.github.maximtereshchenko.outbox.Message;
 import com.github.maximtereshchenko.outbox.Outbox;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
@@ -22,6 +24,8 @@ import java.io.IOException;
 import java.util.UUID;
 
 final class CreateTemplateCommandKafkaConsumer {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CreateTemplateCommandKafkaConsumer.class);
 
     private final CreateTemplateUseCase useCase;
     private final Outbox outbox;
@@ -34,7 +38,20 @@ final class CreateTemplateCommandKafkaConsumer {
     }
 
     @KafkaListener(topics = "${clerk.write.create-template-command.topic}")
-    void onCreateTemplateCommand(@Header(KafkaHeaders.RECEIVED_KEY) String key, @Payload CreateTemplateCommand command) {
+    void onCreateTemplateCommand(
+            @Header(KafkaHeaders.RECEIVED_KEY) String key,
+            @Payload CreateTemplateCommand command
+    ) throws IOException {
+        outbox.put(
+                new Message(
+                        key,
+                        new CreateTemplateResult(command, createTemplate(command)),
+                        createTemplateResultTopic
+                )
+        );
+    }
+
+    private Result createTemplate(CreateTemplateCommand command) throws IOException {
         try {
             useCase.createTemplate(
                     UUID.fromString(command.getId()),
@@ -42,23 +59,32 @@ final class CreateTemplateCommandKafkaConsumer {
                     UUID.fromString(command.getFileId()),
                     command.getName()
             );
-            outbox.put(new Message(key, new CreateTemplateResult(command, Result.CREATED), createTemplateResultTopic));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (NameIsRequired e) {
-            throw new RuntimeException(e);
-        } catch (IdIsTaken e) {
-            throw new RuntimeException(e);
+            return Result.CREATED;
         } catch (FileIsExpired e) {
-            throw new RuntimeException(e);
-        } catch (CouldNotFindFile e) {
-            throw new RuntimeException(e);
+            log(e);
+            return Result.FILE_IS_EXPIRED;
         } catch (TemplateIsEmpty e) {
-            throw new RuntimeException(e);
-        } catch (CouldNotProcessFile e) {
-            throw new RuntimeException(e);
+            log(e);
+            return Result.TEMPLATE_IS_EMPTY;
+        } catch (NameIsRequired e) {
+            log(e);
+            return Result.NAME_IS_REQUIRED;
         } catch (FileBelongsToAnotherUser e) {
-            throw new RuntimeException(e);
+            log(e);
+            return Result.FILE_BELONGS_TO_ANOTHER_USER;
+        } catch (IdIsTaken e) {
+            log(e);
+            return Result.ID_IS_TAKEN;
+        } catch (CouldNotProcessFile e) {
+            log(e);
+            return Result.COULD_NOT_PROCESS_FILE;
+        } catch (CouldNotFindFile e) {
+            log(e);
+            return Result.COULD_NOT_FIND_FILE;
         }
+    }
+
+    private void log(Exception e) {
+        LOG.warn("Could not create template", e);
     }
 }

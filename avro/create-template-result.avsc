@@ -19,7 +19,7 @@
           "FILE_IS_EXPIRED",
           "COULD_NOT_FIND_FILE",
           "TEMPLATE_IS_EMPTY",
-          "COULD_NOT_PROCESS_TEMPLATE",
+          "COULD_NOT_PROCESS_FILE",
           "FILE_BELONGS_TO_ANOTHER_USER"
         ]
       }
