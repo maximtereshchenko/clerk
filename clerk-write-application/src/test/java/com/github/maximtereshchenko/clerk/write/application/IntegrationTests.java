@@ -1,8 +1,6 @@
 package com.github.maximtereshchenko.clerk.write.application;
 
-import com.github.maximtereshchenko.clerk.write.CreateTemplateCommand;
-import com.github.maximtereshchenko.clerk.write.CreateTemplateResult;
-import com.github.maximtereshchenko.clerk.write.Result;
+import com.github.maximtereshchenko.clerk.write.*;
 import com.github.maximtereshchenko.clerk.write.api.ClerkWriteModule;
 import com.github.maximtereshchenko.clerk.write.api.exception.IdIsTaken;
 import com.github.maximtereshchenko.clerk.write.api.exception.NameIsRequired;
@@ -35,6 +33,7 @@ import java.io.IOException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -49,7 +48,9 @@ import static org.mockito.Mockito.doThrow;
         webEnvironment = SpringBootTest.WebEnvironment.NONE,
         properties = {
                 "clerk.write.create-template-command.topic=create-template-command",
-                "clerk.write.create-template-result.topic=create-template-result",
+                "clerk.write.create-template-result-response.topic=create-template-result-response",
+                "clerk.write.create-document-command.topic=create-document-command",
+                "clerk.write.create-document-result-response.topic=create-document-result-response",
                 "spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer",
                 "spring.kafka.producer.value-serializer=io.confluent.kafka.serializers.KafkaAvroSerializer"
         }
@@ -65,18 +66,22 @@ final class IntegrationTests {
     private Outbox outbox;
     @Value("${clerk.write.create-template-command.topic}")
     private String createTemplateCommandTopic;
-    @Value("${clerk.write.create-template-result.topic}")
-    private String createTemplateResultTopic;
+    @Value("${clerk.write.create-template-result-response.topic}")
+    private String createTemplateResultResponseTopic;
+    @Value("${clerk.write.create-document-command.topic}")
+    private String createDocumentCommandTopic;
+    @Value("${clerk.write.create-document-result-response.topic}")
+    private String createDocumentResultResponseTopic;
 
     static Stream<Arguments> factory() {
         return Stream.of(
-                arguments(NameIsRequired.class, Result.NAME_IS_REQUIRED),
-                arguments(IdIsTaken.class, Result.ID_IS_TAKEN),
-                arguments(FileIsExpired.class, Result.FILE_IS_EXPIRED),
-                arguments(CouldNotFindFile.class, Result.COULD_NOT_FIND_FILE),
-                arguments(TemplateIsEmpty.class, Result.TEMPLATE_IS_EMPTY),
-                arguments(CouldNotProcessFile.class, Result.COULD_NOT_PROCESS_FILE),
-                arguments(FileBelongsToAnotherUser.class, Result.FILE_BELONGS_TO_ANOTHER_USER)
+                arguments(NameIsRequired.class, CreateTemplateResult.NAME_IS_REQUIRED),
+                arguments(IdIsTaken.class, CreateTemplateResult.ID_IS_TAKEN),
+                arguments(FileIsExpired.class, CreateTemplateResult.FILE_IS_EXPIRED),
+                arguments(CouldNotFindFile.class, CreateTemplateResult.COULD_NOT_FIND_FILE),
+                arguments(TemplateIsEmpty.class, CreateTemplateResult.TEMPLATE_IS_EMPTY),
+                arguments(CouldNotProcessFile.class, CreateTemplateResult.COULD_NOT_PROCESS_FILE),
+                arguments(FileBelongsToAnotherUser.class, CreateTemplateResult.FILE_BELONGS_TO_ANOTHER_USER)
         );
     }
 
@@ -100,8 +105,11 @@ final class IntegrationTests {
                         outbox.containsMessage(
                                 new Message(
                                         id.toString(),
-                                        new CreateTemplateResult(createTemplateCommand, Result.CREATED),
-                                        createTemplateResultTopic
+                                        new CreateTemplateResultResponse(
+                                                createTemplateCommand,
+                                                CreateTemplateResult.CREATED
+                                        ),
+                                        createTemplateResultResponseTopic
                                 )
                         )
                 )
@@ -113,7 +121,7 @@ final class IntegrationTests {
     @MethodSource("factory")
     void givenFailedCreateTemplateCommand_whenCreateTemplate_thenFailedResultSent(
             Class<Exception> exceptionType,
-            Result result,
+            CreateTemplateResult result,
             UUID id,
             UUID userId,
             UUID fileId
@@ -132,8 +140,8 @@ final class IntegrationTests {
                         outbox.containsMessage(
                                 new Message(
                                         id.toString(),
-                                        new CreateTemplateResult(createTemplateCommand, result),
-                                        createTemplateResultTopic
+                                        new CreateTemplateResultResponse(createTemplateCommand, result),
+                                        createTemplateResultResponseTopic
                                 )
                         )
                 )
@@ -161,8 +169,38 @@ final class IntegrationTests {
                         outbox.containsMessage(
                                 new Message(
                                         id.toString(),
-                                        new CreateTemplateResult(createTemplateCommand, Result.CREATED),
-                                        createTemplateResultTopic
+                                        new CreateTemplateResultResponse(
+                                                createTemplateCommand,
+                                                CreateTemplateResult.CREATED
+                                        ),
+                                        createTemplateResultResponseTopic
+                                )
+                        )
+                )
+                        .isTrue()
+        );
+    }
+
+    @Test
+    void givenCreateDocumentCommand_whenCreateDocument_thenResultCreatedSent(UUID id, UUID userId, UUID templateId) {
+        var createDocumentCommand = new CreateDocumentCommand(
+                id.toString(),
+                userId.toString(),
+                templateId.toString(),
+                Map.of("key", "value")
+        );
+        kafkaTemplate.send(createDocumentCommandTopic, id.toString(), createDocumentCommand);
+
+        await().untilAsserted(() ->
+                assertThat(
+                        outbox.containsMessage(
+                                new Message(
+                                        id.toString(),
+                                        new CreateDocumentResultResponse(
+                                                createDocumentCommand,
+                                                CreateDocumentResult.CREATED
+                                        ),
+                                        createDocumentResultResponseTopic
                                 )
                         )
                 )

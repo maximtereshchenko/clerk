@@ -1,0 +1,21 @@
+{
+  "type": "record",
+  "name": "CreateDocumentResultResponse",
+  "namespace": "com.github.maximtereshchenko.clerk.write",
+  "fields": [
+    {
+      "name": "command",
+      "type": "com.github.maximtereshchenko.clerk.write.CreateDocumentCommand"
+    },
+    {
+      "name": "result",
+      "type": {
+        "name": "CreateDocumentResult",
+        "type": "enum",
+        "symbols": [
+          "CREATED"
+        ]
+      }
+    }
+  ]
+}

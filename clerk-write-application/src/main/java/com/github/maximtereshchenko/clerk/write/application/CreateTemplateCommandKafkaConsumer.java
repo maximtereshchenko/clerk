@@ -2,7 +2,7 @@ package com.github.maximtereshchenko.clerk.write.application;
 
 import com.github.maximtereshchenko.clerk.write.CreateTemplateCommand;
 import com.github.maximtereshchenko.clerk.write.CreateTemplateResult;
-import com.github.maximtereshchenko.clerk.write.Result;
+import com.github.maximtereshchenko.clerk.write.CreateTemplateResultResponse;
 import com.github.maximtereshchenko.clerk.write.api.CreateTemplateUseCase;
 import com.github.maximtereshchenko.clerk.write.api.exception.IdIsTaken;
 import com.github.maximtereshchenko.clerk.write.api.exception.NameIsRequired;
@@ -29,12 +29,12 @@ final class CreateTemplateCommandKafkaConsumer {
 
     private final CreateTemplateUseCase useCase;
     private final Outbox outbox;
-    private final String createTemplateResultTopic;
+    private final String responseTopic;
 
-    CreateTemplateCommandKafkaConsumer(CreateTemplateUseCase useCase, Outbox outbox, String createTemplateResultTopic) {
+    CreateTemplateCommandKafkaConsumer(CreateTemplateUseCase useCase, Outbox outbox, String responseTopic) {
         this.useCase = useCase;
         this.outbox = outbox;
-        this.createTemplateResultTopic = createTemplateResultTopic;
+        this.responseTopic = responseTopic;
     }
 
     @KafkaListener(topics = "${clerk.write.create-template-command.topic}")
@@ -45,13 +45,13 @@ final class CreateTemplateCommandKafkaConsumer {
         outbox.put(
                 new Message(
                         key,
-                        new CreateTemplateResult(command, createTemplate(command)),
-                        createTemplateResultTopic
+                        new CreateTemplateResultResponse(command, createTemplate(command)),
+                        responseTopic
                 )
         );
     }
 
-    private Result createTemplate(CreateTemplateCommand command) throws IOException {
+    private CreateTemplateResult createTemplate(CreateTemplateCommand command) throws IOException {
         try {
             useCase.createTemplate(
                     UUID.fromString(command.getId()),
@@ -59,28 +59,28 @@ final class CreateTemplateCommandKafkaConsumer {
                     UUID.fromString(command.getFileId()),
                     command.getName()
             );
-            return Result.CREATED;
+            return CreateTemplateResult.CREATED;
         } catch (FileIsExpired e) {
             log(e);
-            return Result.FILE_IS_EXPIRED;
+            return CreateTemplateResult.FILE_IS_EXPIRED;
         } catch (TemplateIsEmpty e) {
             log(e);
-            return Result.TEMPLATE_IS_EMPTY;
+            return CreateTemplateResult.TEMPLATE_IS_EMPTY;
         } catch (NameIsRequired e) {
             log(e);
-            return Result.NAME_IS_REQUIRED;
+            return CreateTemplateResult.NAME_IS_REQUIRED;
         } catch (FileBelongsToAnotherUser e) {
             log(e);
-            return Result.FILE_BELONGS_TO_ANOTHER_USER;
+            return CreateTemplateResult.FILE_BELONGS_TO_ANOTHER_USER;
         } catch (IdIsTaken e) {
             log(e);
-            return Result.ID_IS_TAKEN;
+            return CreateTemplateResult.ID_IS_TAKEN;
         } catch (CouldNotProcessFile e) {
             log(e);
-            return Result.COULD_NOT_PROCESS_FILE;
+            return CreateTemplateResult.COULD_NOT_PROCESS_FILE;
         } catch (CouldNotFindFile e) {
             log(e);
-            return Result.COULD_NOT_FIND_FILE;
+            return CreateTemplateResult.COULD_NOT_FIND_FILE;
         }
     }
 

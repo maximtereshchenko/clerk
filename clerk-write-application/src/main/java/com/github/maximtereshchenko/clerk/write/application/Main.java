@@ -1,5 +1,6 @@
 package com.github.maximtereshchenko.clerk.write.application;
 
+import com.github.maximtereshchenko.clerk.write.api.CreateDocumentFromTemplateUseCase;
 import com.github.maximtereshchenko.clerk.write.api.CreateTemplateUseCase;
 import com.github.maximtereshchenko.outbox.Outbox;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,8 +23,17 @@ class Main {
     CreateTemplateCommandKafkaConsumer createTemplateCommandKafkaConsumer(
             CreateTemplateUseCase useCase,
             Outbox outbox,
-            @Value("${clerk.write.create-template-result.topic}") String createTemplateResultTopic
+            @Value("${clerk.write.create-template-result-response.topic}") String responseTopic
     ) {
-        return new CreateTemplateCommandKafkaConsumer(useCase, outbox, createTemplateResultTopic);
+        return new CreateTemplateCommandKafkaConsumer(useCase, outbox, responseTopic);
+    }
+
+    @Bean
+    CreateDocumentCommandKafkaConsumer createDocumentCommandKafkaConsumer(
+            CreateDocumentFromTemplateUseCase useCase,
+            Outbox outbox,
+            @Value("${clerk.write.create-document-result-response.topic}") String responseTopic
+    ) {
+        return new CreateDocumentCommandKafkaConsumer(useCase, outbox, responseTopic);
     }
 }

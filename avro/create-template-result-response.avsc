@@ -1,6 +1,6 @@
 {
   "type": "record",
-  "name": "CreateTemplateResult",
+  "name": "CreateTemplateResultResponse",
   "namespace": "com.github.maximtereshchenko.clerk.write",
   "fields": [
     {
@@ -10,7 +10,7 @@
     {
       "name": "result",
       "type": {
-        "name": "Result",
+        "name": "CreateTemplateResult",
         "type": "enum",
         "symbols": [
           "CREATED",

@@ -22,6 +22,8 @@ dependencies {
 generateAvro {
     files = listOf(
         "${rootDir}/avro/create-template-command.avsc",
-        "${rootDir}/avro/create-template-result.avsc"
+        "${rootDir}/avro/create-template-result-response.avsc",
+        "${rootDir}/avro/create-document-command.avsc",
+        "${rootDir}/avro/create-document-result-response.avsc"
     )
 }
