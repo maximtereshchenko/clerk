@@ -59,22 +59,29 @@ final class CreateDocumentCommandKafkaConsumer {
                     UUID.fromString(command.getTemplateId()),
                     command.getValues()
             );
+            return CreateDocumentResult.CREATED;
         } catch (ValuesAreRequired e) {
             log(e);
+            return CreateDocumentResult.VALUES_ARE_REQUIRED;
         } catch (FileIdIsTaken e) {
             log(e);
+            return CreateDocumentResult.FILE_ID_IS_TAKEN;
         } catch (CouldNotFindTemplate e) {
             log(e);
+            return CreateDocumentResult.COULD_NOT_FIND_TEMPLATE;
         } catch (FileIsExpired e) {
             log(e);
+            return CreateDocumentResult.FILE_IS_EXPIRED;
         } catch (CouldNotFindFile e) {
             log(e);
+            return CreateDocumentResult.COULD_NOT_FIND_FILE;
         } catch (CouldNotProcessFile e) {
             log(e);
+            return CreateDocumentResult.COULD_NOT_PROCESS_FILE;
         } catch (TemplateBelongsToAnotherUser e) {
             log(e);
+            return CreateDocumentResult.TEMPLATE_BELONGS_TO_ANOTHER_USER;
         }
-        return CreateDocumentResult.CREATED;
     }
 
     private void log(Exception e) {

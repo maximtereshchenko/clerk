@@ -2,13 +2,8 @@ package com.github.maximtereshchenko.clerk.write.application;
 
 import com.github.maximtereshchenko.clerk.write.*;
 import com.github.maximtereshchenko.clerk.write.api.ClerkWriteModule;
-import com.github.maximtereshchenko.clerk.write.api.exception.IdIsTaken;
-import com.github.maximtereshchenko.clerk.write.api.exception.NameIsRequired;
-import com.github.maximtereshchenko.clerk.write.api.exception.TemplateIsEmpty;
-import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotFindFile;
-import com.github.maximtereshchenko.clerk.write.api.port.exception.CouldNotProcessFile;
-import com.github.maximtereshchenko.clerk.write.api.port.exception.FileBelongsToAnotherUser;
-import com.github.maximtereshchenko.clerk.write.api.port.exception.FileIsExpired;
+import com.github.maximtereshchenko.clerk.write.api.exception.*;
+import com.github.maximtereshchenko.clerk.write.api.port.exception.*;
 import com.github.maximtereshchenko.outbox.Message;
 import com.github.maximtereshchenko.outbox.Outbox;
 import com.github.maximtereshchenko.test.ConfluentPlatformExtension;
@@ -40,8 +35,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doThrow;
 
 @SpringBootTest(
@@ -73,7 +67,7 @@ final class IntegrationTests {
     @Value("${clerk.write.create-document-result-response.topic}")
     private String createDocumentResultResponseTopic;
 
-    static Stream<Arguments> factory() {
+    static Stream<Arguments> createTemplateExceptions() {
         return Stream.of(
                 arguments(NameIsRequired.class, CreateTemplateResult.NAME_IS_REQUIRED),
                 arguments(IdIsTaken.class, CreateTemplateResult.ID_IS_TAKEN),
@@ -82,6 +76,18 @@ final class IntegrationTests {
                 arguments(TemplateIsEmpty.class, CreateTemplateResult.TEMPLATE_IS_EMPTY),
                 arguments(CouldNotProcessFile.class, CreateTemplateResult.COULD_NOT_PROCESS_FILE),
                 arguments(FileBelongsToAnotherUser.class, CreateTemplateResult.FILE_BELONGS_TO_ANOTHER_USER)
+        );
+    }
+
+    static Stream<Arguments> createDocumentExceptions() {
+        return Stream.of(
+                arguments(ValuesAreRequired.class, CreateDocumentResult.VALUES_ARE_REQUIRED),
+                arguments(FileIdIsTaken.class, CreateDocumentResult.FILE_ID_IS_TAKEN),
+                arguments(CouldNotFindTemplate.class, CreateDocumentResult.COULD_NOT_FIND_TEMPLATE),
+                arguments(FileIsExpired.class, CreateDocumentResult.FILE_IS_EXPIRED),
+                arguments(CouldNotFindFile.class, CreateDocumentResult.COULD_NOT_FIND_FILE),
+                arguments(CouldNotProcessFile.class, CreateDocumentResult.COULD_NOT_PROCESS_FILE),
+                arguments(TemplateBelongsToAnotherUser.class, CreateDocumentResult.TEMPLATE_BELONGS_TO_ANOTHER_USER)
         );
     }
 
@@ -118,7 +124,7 @@ final class IntegrationTests {
     }
 
     @ParameterizedTest
-    @MethodSource("factory")
+    @MethodSource("createTemplateExceptions")
     void givenFailedCreateTemplateCommand_whenCreateTemplate_thenFailedResultSent(
             Class<Exception> exceptionType,
             CreateTemplateResult result,
@@ -207,6 +213,42 @@ final class IntegrationTests {
                         .isTrue()
         );
     }
+
+    @ParameterizedTest
+    @MethodSource("createDocumentExceptions")
+    void givenFailedCreateDocumentCommand_whenCreateDocument_thenFailedResultSent(
+            Class<Exception> exceptionType,
+            CreateDocumentResult result,
+            UUID id,
+            UUID userId,
+            UUID templateId
+    ) throws Exception {
+        var createDocumentCommand = new CreateDocumentCommand(
+                id.toString(),
+                userId.toString(),
+                templateId.toString(),
+                Map.of("key", "value")
+        );
+        doThrow(exceptionType).when(module).createDocument(any(), any(), any(), anyMap());
+        kafkaTemplate.send(createDocumentCommandTopic, id.toString(), createDocumentCommand);
+
+        await().untilAsserted(() ->
+                assertThat(
+                        outbox.containsMessage(
+                                new Message(
+                                        id.toString(),
+                                        new CreateDocumentResultResponse(
+                                                createDocumentCommand,
+                                                result
+                                        ),
+                                        createDocumentResultResponseTopic
+                                )
+                        )
+                )
+                        .isTrue()
+        );
+    }
+
 
     @TestConfiguration
     static class TestConfig {

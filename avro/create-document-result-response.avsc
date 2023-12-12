@@ -13,7 +13,14 @@
         "name": "CreateDocumentResult",
         "type": "enum",
         "symbols": [
-          "CREATED"
+          "CREATED",
+          "VALUES_ARE_REQUIRED",
+          "FILE_ID_IS_TAKEN",
+          "COULD_NOT_FIND_TEMPLATE",
+          "FILE_IS_EXPIRED",
+          "COULD_NOT_FIND_FILE",
+          "COULD_NOT_PROCESS_FILE",
+          "TEMPLATE_BELONGS_TO_ANOTHER_USER"
         ]
       }
     }
