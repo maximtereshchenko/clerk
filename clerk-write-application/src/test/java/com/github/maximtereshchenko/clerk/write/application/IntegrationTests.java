@@ -249,6 +249,37 @@ final class IntegrationTests {
         );
     }
 
+    @Test
+    void givenTechnicalFailure_whenCreateDocument_thenCommandShouldBeRetried(UUID id, UUID userId, UUID templateId)
+            throws Exception {
+        var createDocumentCommand = new CreateDocumentCommand(
+                id.toString(),
+                userId.toString(),
+                templateId.toString(),
+                Map.of("key", "value")
+        );
+        doThrow(IOException.class)
+                .doThrow(IOException.class)
+                .doNothing()
+                .when(module).createDocument(any(), any(), any(), anyMap());
+        kafkaTemplate.send(createDocumentCommandTopic, id.toString(), createDocumentCommand);
+
+        await().untilAsserted(() ->
+                assertThat(
+                        outbox.containsMessage(
+                                new Message(
+                                        id.toString(),
+                                        new CreateDocumentResultResponse(
+                                                createDocumentCommand,
+                                                CreateDocumentResult.CREATED
+                                        ),
+                                        createDocumentResultResponseTopic
+                                )
+                        )
+                )
+                        .isTrue()
+        );
+    }
 
     @TestConfiguration
     static class TestConfig {
