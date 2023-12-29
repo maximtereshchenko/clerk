@@ -1,23 +1,16 @@
-package com.github.maximtereshchenko.clerk.write.application;
+package com.github.maximtereshchenko.clerk.write.kafka;
 
 import com.github.maximtereshchenko.clerk.write.api.CreateDocumentFromTemplateUseCase;
 import com.github.maximtereshchenko.clerk.write.api.CreateTemplateUseCase;
 import com.github.maximtereshchenko.outbox.Outbox;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.annotation.EnableKafka;
 
-@SpringBootConfiguration
-@EnableAutoConfiguration
+@AutoConfiguration
 @EnableKafka
-class Main {
-
-    public static void main(String[] args) {
-        SpringApplication.run(Main.class, args);
-    }
+class ClerkWriteKafkaAutoConfiguration {
 
     @Bean
     CreateTemplateCommandKafkaConsumer createTemplateCommandKafkaConsumer(

@@ -16,7 +16,7 @@ public final class TemplateEngineFreemarker implements TemplateEngine {
 
     private final Configuration configuration;
 
-    public TemplateEngineFreemarker(Configuration configuration) {
+    private TemplateEngineFreemarker(Configuration configuration) {
         this.configuration = configuration;
     }
 

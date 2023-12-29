@@ -1,4 +1,4 @@
-package com.github.maximtereshchenko.clerk.write.application;
+package com.github.maximtereshchenko.clerk.write.kafka;
 
 import com.github.maximtereshchenko.clerk.write.*;
 import com.github.maximtereshchenko.clerk.write.api.ClerkWriteModule;
@@ -18,6 +18,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -26,8 +28,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 
 import java.io.IOException;
 import java.time.Clock;
-import java.time.Instant;
-import java.time.ZoneOffset;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -46,26 +46,23 @@ import static org.mockito.Mockito.doThrow;
                 "clerk.write.create-document-command.topic=create-document-command",
                 "clerk.write.create-document-result-response.topic=create-document-result-response",
                 "spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer",
-                "spring.kafka.producer.value-serializer=io.confluent.kafka.serializers.KafkaAvroSerializer"
+                "spring.kafka.producer.value-serializer=io.confluent.kafka.serializers.KafkaAvroSerializer",
+                "spring.kafka.listener.ack-mode=RECORD",
+                "spring.kafka.consumer.group-id=test",
+                "spring.kafka.consumer.auto-offset-reset=earliest",
+                "spring.kafka.consumer.key-deserializer=org.apache.kafka.common.serialization.StringDeserializer",
+                "spring.kafka.consumer.value-deserializer=io.confluent.kafka.serializers.KafkaAvroDeserializer",
+                "spring.kafka.properties.specific.avro.reader=true",
+                "spring.flyway.locations=classpath:outbox/migration"
         }
 )
+@EnableAutoConfiguration
+@SpringBootConfiguration
 @ExtendWith({PredictableUUIDExtension.class, ConfluentPlatformExtension.class, PostgreSqlExtension.class})
-final class IntegrationTests {
+class IntegrationTests {
 
     @MockBean
     private ClerkWriteModule module;
-    @Autowired
-    private KafkaTemplate<String, GenericRecord> kafkaTemplate;
-    @Autowired
-    private Outbox outbox;
-    @Value("${clerk.write.create-template-command.topic}")
-    private String createTemplateCommandTopic;
-    @Value("${clerk.write.create-template-result-response.topic}")
-    private String createTemplateResultResponseTopic;
-    @Value("${clerk.write.create-document-command.topic}")
-    private String createDocumentCommandTopic;
-    @Value("${clerk.write.create-document-result-response.topic}")
-    private String createDocumentResultResponseTopic;
 
     static Stream<Arguments> createTemplateExceptions() {
         return Stream.of(
@@ -92,12 +89,20 @@ final class IntegrationTests {
     }
 
     @AfterEach
-    void cleanUp() {
+    void cleanUp(@Autowired Outbox outbox) {
         outbox.clear();
     }
 
     @Test
-    void givenCreateTemplateCommand_whenCreateTemplate_thenResultCreatedSent(UUID id, UUID userId, UUID fileId) {
+    void givenCreateTemplateCommand_whenCreateTemplate_thenResultCreatedSent(
+            @Autowired KafkaTemplate<String, GenericRecord> kafkaTemplate,
+            @Autowired Outbox outbox,
+            @Value("${clerk.write.create-template-command.topic}") String createTemplateCommandTopic,
+            @Value("${clerk.write.create-template-result-response.topic}") String createTemplateResultResponseTopic,
+            UUID id,
+            UUID userId,
+            UUID fileId
+    ) {
         var createTemplateCommand = new CreateTemplateCommand(
                 id.toString(),
                 userId.toString(),
@@ -128,6 +133,10 @@ final class IntegrationTests {
     void givenFailedCreateTemplateCommand_whenCreateTemplate_thenFailedResultSent(
             Class<Exception> exceptionType,
             CreateTemplateResult result,
+            @Autowired KafkaTemplate<String, GenericRecord> kafkaTemplate,
+            @Autowired Outbox outbox,
+            @Value("${clerk.write.create-template-command.topic}") String createTemplateCommandTopic,
+            @Value("${clerk.write.create-template-result-response.topic}") String createTemplateResultResponseTopic,
             UUID id,
             UUID userId,
             UUID fileId
@@ -156,8 +165,15 @@ final class IntegrationTests {
     }
 
     @Test
-    void givenTechnicalFailure_whenCreateTemplate_thenCommandShouldBeRetried(UUID id, UUID userId, UUID fileId)
-            throws Exception {
+    void givenTechnicalFailure_whenCreateTemplate_thenCommandShouldBeRetried(
+            @Autowired KafkaTemplate<String, GenericRecord> kafkaTemplate,
+            @Autowired Outbox outbox,
+            @Value("${clerk.write.create-template-command.topic}") String createTemplateCommandTopic,
+            @Value("${clerk.write.create-template-result-response.topic}") String createTemplateResultResponseTopic,
+            UUID id,
+            UUID userId,
+            UUID fileId
+    ) throws Exception {
         var createTemplateCommand = new CreateTemplateCommand(
                 id.toString(),
                 userId.toString(),
@@ -188,7 +204,15 @@ final class IntegrationTests {
     }
 
     @Test
-    void givenCreateDocumentCommand_whenCreateDocument_thenResultCreatedSent(UUID id, UUID userId, UUID templateId) {
+    void givenCreateDocumentCommand_whenCreateDocument_thenResultCreatedSent(
+            @Autowired KafkaTemplate<String, GenericRecord> kafkaTemplate,
+            @Autowired Outbox outbox,
+            @Value("${clerk.write.create-document-command.topic}") String createDocumentCommandTopic,
+            @Value("${clerk.write.create-document-result-response.topic}") String createDocumentResultResponseTopic,
+            UUID id,
+            UUID userId,
+            UUID templateId
+    ) {
         var createDocumentCommand = new CreateDocumentCommand(
                 id.toString(),
                 userId.toString(),
@@ -219,6 +243,10 @@ final class IntegrationTests {
     void givenFailedCreateDocumentCommand_whenCreateDocument_thenFailedResultSent(
             Class<Exception> exceptionType,
             CreateDocumentResult result,
+            @Autowired KafkaTemplate<String, GenericRecord> kafkaTemplate,
+            @Autowired Outbox outbox,
+            @Value("${clerk.write.create-document-command.topic}") String createDocumentCommandTopic,
+            @Value("${clerk.write.create-document-result-response.topic}") String createDocumentResultResponseTopic,
             UUID id,
             UUID userId,
             UUID templateId
@@ -250,8 +278,15 @@ final class IntegrationTests {
     }
 
     @Test
-    void givenTechnicalFailure_whenCreateDocument_thenCommandShouldBeRetried(UUID id, UUID userId, UUID templateId)
-            throws Exception {
+    void givenTechnicalFailure_whenCreateDocument_thenCommandShouldBeRetried(
+            @Autowired KafkaTemplate<String, GenericRecord> kafkaTemplate,
+            @Autowired Outbox outbox,
+            @Value("${clerk.write.create-document-command.topic}") String createDocumentCommandTopic,
+            @Value("${clerk.write.create-document-result-response.topic}") String createDocumentResultResponseTopic,
+            UUID id,
+            UUID userId,
+            UUID templateId
+    ) throws Exception {
         var createDocumentCommand = new CreateDocumentCommand(
                 id.toString(),
                 userId.toString(),
@@ -282,11 +317,11 @@ final class IntegrationTests {
     }
 
     @TestConfiguration
-    static class TestConfig {
+    static class Config {
 
         @Bean
         Clock clock() {
-            return Clock.fixed(Instant.parse("2020-01-01T00:00:00Z"), ZoneOffset.UTC);
+            return Clock.systemDefaultZone();
         }
     }
 }

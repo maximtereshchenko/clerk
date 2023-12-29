@@ -5,18 +5,16 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":clerk-write"))
+    implementation(project(":clerk-write-api"))
     implementation(project(":spring-boot-starter-outbox"))
     implementation(platform(libs.spring.boot.bom))
-    implementation(libs.spring.boot.starter.actuator)
+    implementation(libs.spring.boot.autoconfigure)
     implementation(libs.spring.kafka)
-    implementation(libs.spring.boot.starter.data.jdbc)
-    implementation(libs.flyway.core)
-    implementation(libs.postgresql)
     testImplementation(testFixtures(project(":test-common")))
     testImplementation(libs.assertj)
     testImplementation(libs.awaitility)
     testImplementation(libs.spring.boot.starter.test)
+    testImplementation(libs.flyway.core)
 }
 
 generateAvro {

@@ -16,7 +16,7 @@ include("file-storage-files-on-disk")
 include("file-storage-file-labels-in-memory")
 include("gateway")
 include("spring-boot-starter-outbox")
-include("clerk-write-application")
+include("spring-boot-starter-clerk-write-kafka")
 dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
@@ -48,6 +48,12 @@ dependencyResolutionManagement {
                 .withoutVersion()
             library("spring-kafka", "org.springframework.kafka", "spring-kafka").withoutVersion()
             library(
+                "spring-boot-autoconfigure",
+                "org.springframework.boot",
+                "spring-boot-autoconfigure"
+            )
+                .withoutVersion()
+            library(
                 "spring-boot-starter-validation",
                 "org.springframework.boot",
                 "spring-boot-starter-validation"
@@ -57,12 +63,6 @@ dependencyResolutionManagement {
                 "spring-boot-starter-test",
                 "org.springframework.boot",
                 "spring-boot-starter-test"
-            )
-                .withoutVersion()
-            library(
-                "spring-boot-starter-actuator",
-                "org.springframework.boot",
-                "spring-boot-starter-actuator"
             )
                 .withoutVersion()
             library(

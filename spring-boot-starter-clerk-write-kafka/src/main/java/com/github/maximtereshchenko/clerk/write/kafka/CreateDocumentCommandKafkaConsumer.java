@@ -1,4 +1,4 @@
-package com.github.maximtereshchenko.clerk.write.application;
+package com.github.maximtereshchenko.clerk.write.kafka;
 
 import com.github.maximtereshchenko.clerk.write.CreateDocumentCommand;
 import com.github.maximtereshchenko.clerk.write.CreateDocumentResult;
@@ -19,11 +19,12 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.UUID;
 
-final class CreateDocumentCommandKafkaConsumer {
+class CreateDocumentCommandKafkaConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(CreateDocumentCommandKafkaConsumer.class);
 
@@ -38,7 +39,8 @@ final class CreateDocumentCommandKafkaConsumer {
     }
 
     @KafkaListener(topics = "${clerk.write.create-document-command.topic}")
-    void onCreateDocumentCommand(
+    @Transactional
+    public void onCreateDocumentCommand(
             @Header(KafkaHeaders.RECEIVED_KEY) String key,
             @Payload CreateDocumentCommand command
     ) throws IOException {

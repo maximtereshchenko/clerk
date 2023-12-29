@@ -1,4 +1,4 @@
-package com.github.maximtereshchenko.clerk.write.application;
+package com.github.maximtereshchenko.clerk.write.kafka;
 
 import com.github.maximtereshchenko.clerk.write.CreateTemplateCommand;
 import com.github.maximtereshchenko.clerk.write.CreateTemplateResult;
@@ -19,11 +19,12 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.UUID;
 
-final class CreateTemplateCommandKafkaConsumer {
+class CreateTemplateCommandKafkaConsumer {
 
     private static final Logger LOG = LoggerFactory.getLogger(CreateTemplateCommandKafkaConsumer.class);
 
@@ -38,7 +39,8 @@ final class CreateTemplateCommandKafkaConsumer {
     }
 
     @KafkaListener(topics = "${clerk.write.create-template-command.topic}")
-    void onCreateTemplateCommand(
+    @Transactional
+    public void onCreateTemplateCommand(
             @Header(KafkaHeaders.RECEIVED_KEY) String key,
             @Payload CreateTemplateCommand command
     ) throws IOException {
